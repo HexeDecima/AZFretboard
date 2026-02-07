@@ -10,191 +10,192 @@ import java.util.Hashtable;
 
 public class FretboardPanel extends JPanel implements MouseListener {
 
-  Rectangle e0 = new Rectangle(6, 12, 50, 20);
-  Rectangle e1 = new Rectangle(70, 12, 42, 20);
-  Rectangle e2 = new Rectangle(132, 12, 36, 20);
-  Rectangle e3 = new Rectangle(190, 12, 35, 20);
-  Rectangle e4 = new Rectangle(246, 12, 32, 20);
-  Rectangle e5 = new Rectangle(301, 12, 31, 20);
-  Rectangle e6 = new Rectangle(357, 12, 29, 20);
-  Rectangle e7 = new Rectangle(410, 12, 27, 20);
-  Rectangle e8 = new Rectangle(462, 12, 27, 20);
-  Rectangle e9 = new Rectangle(513, 12, 25, 20);
-  Rectangle e10 = new Rectangle(564, 12, 23, 20);
-  Rectangle e11 = new Rectangle(612, 12, 23, 20);
-  Rectangle e12 = new Rectangle(660, 12, 22, 20);
-  Rectangle e13 = new Rectangle(708, 12, 22, 20);
-  Rectangle e14 = new Rectangle(755, 12, 21, 20);
-  Rectangle e15 = new Rectangle(799, 12, 21, 20);
-  Rectangle e16 = new Rectangle(843, 12, 21, 20);
-  Rectangle e17 = new Rectangle(886, 12, 20, 20);
-  Rectangle e18 = new Rectangle(926, 12, 21, 20);
-  Rectangle e19 = new Rectangle(967, 12, 21, 20);
-  Rectangle e20 = new Rectangle(1007, 12, 20, 20);
-  Rectangle e21 = new Rectangle(1045, 12, 20, 20);
-  Rectangle e22 = new Rectangle(1082, 12, 20, 20);
-  Rectangle e23 = new Rectangle(1119, 12, 20, 20);
-  Rectangle e24 = new Rectangle(1154, 12, 20, 20);
+  Rectangle string1_fret00 = new Rectangle(6, 12, 50, 20);
+  Rectangle string1_fret01 = new Rectangle(70, 12, 42, 20);
+  Rectangle string1_fret02 = new Rectangle(132, 12, 36, 20);
+  Rectangle string1_fret03 = new Rectangle(190, 12, 35, 20);
+  Rectangle string1_fret04 = new Rectangle(246, 12, 32, 20);
+  Rectangle string1_fret05 = new Rectangle(301, 12, 31, 20);
+  Rectangle string1_fret06 = new Rectangle(357, 12, 29, 20);
+  Rectangle string1_fret07 = new Rectangle(410, 12, 27, 20);
+  Rectangle string1_fret08 = new Rectangle(462, 12, 27, 20);
+  Rectangle string1_fret09 = new Rectangle(513, 12, 25, 20);
+  Rectangle string1_fret10 = new Rectangle(564, 12, 23, 20);
+  Rectangle string1_fret11 = new Rectangle(612, 12, 23, 20);
+  Rectangle string1_fret12 = new Rectangle(660, 12, 22, 20);
+  Rectangle string1_fret13 = new Rectangle(708, 12, 22, 20);
+  Rectangle string1_fret14 = new Rectangle(755, 12, 21, 20);
+  Rectangle string1_fret15 = new Rectangle(799, 12, 21, 20);
+  Rectangle string1_fret16 = new Rectangle(843, 12, 21, 20);
+  Rectangle string1_fret17 = new Rectangle(886, 12, 20, 20);
+  Rectangle string1_fret18 = new Rectangle(926, 12, 21, 20);
+  Rectangle string1_fret19 = new Rectangle(967, 12, 21, 20);
+  Rectangle string1_fret20 = new Rectangle(1007, 12, 20, 20);
+  Rectangle string1_fret21 = new Rectangle(1045, 12, 20, 20);
+  Rectangle string1_fret22 = new Rectangle(1082, 12, 20, 20);
+  Rectangle string1_fret23 = new Rectangle(1119, 12, 20, 20);
+  Rectangle string1_fret24 = new Rectangle(1154, 12, 20, 20);
 
-  Rectangle b0 = new Rectangle(6, 52, 50, 20);
-  Rectangle b1 = new Rectangle(70, 52, 42, 20);
-  Rectangle b2 = new Rectangle(132, 52, 36, 20);
-  Rectangle b3 = new Rectangle(190, 52, 35, 20);
-  Rectangle b4 = new Rectangle(246, 52, 32, 20);
-  Rectangle b5 = new Rectangle(301, 52, 31, 20);
-  Rectangle b6 = new Rectangle(357, 52, 29, 20);
-  Rectangle b7 = new Rectangle(410, 52, 27, 20);
-  Rectangle b8 = new Rectangle(462, 52, 27, 20);
-  Rectangle b9 = new Rectangle(513, 52, 25, 20);
-  Rectangle b10 = new Rectangle(564, 52, 23, 20);
-  Rectangle b11 = new Rectangle(612, 52, 23, 20);
-  Rectangle b12 = new Rectangle(660, 52, 22, 20);
-  Rectangle b13 = new Rectangle(708, 52, 22, 20);
-  Rectangle b14 = new Rectangle(755, 52, 21, 20);
-  Rectangle b15 = new Rectangle(799, 52, 21, 20);
-  Rectangle b16 = new Rectangle(843, 52, 21, 20);
-  Rectangle b17 = new Rectangle(886, 52, 20, 20);
-  Rectangle b18 = new Rectangle(926, 52, 21, 20);
-  Rectangle b19 = new Rectangle(967, 52, 21, 20);
-  Rectangle b20 = new Rectangle(1007, 52, 20, 20);
-  Rectangle b21 = new Rectangle(1045, 52, 20, 20);
-  Rectangle b22 = new Rectangle(1082, 52, 20, 20);
-  Rectangle b23 = new Rectangle(1119, 52, 20, 20);
-  Rectangle b24 = new Rectangle(1154, 52, 20, 20);
+  Rectangle string2_fret00 = new Rectangle(6, 52, 50, 20);
+  Rectangle string2_fret01 = new Rectangle(70, 52, 42, 20);
+  Rectangle string2_fret02 = new Rectangle(132, 52, 36, 20);
+  Rectangle string2_fret03 = new Rectangle(190, 52, 35, 20);
+  Rectangle string2_fret04 = new Rectangle(246, 52, 32, 20);
+  Rectangle string2_fret05 = new Rectangle(301, 52, 31, 20);
+  Rectangle string2_fret06 = new Rectangle(357, 52, 29, 20);
+  Rectangle string2_fret07 = new Rectangle(410, 52, 27, 20);
+  Rectangle string2_fret08 = new Rectangle(462, 52, 27, 20);
+  Rectangle string2_fret09 = new Rectangle(513, 52, 25, 20);
+  Rectangle string2_fret10 = new Rectangle(564, 52, 23, 20);
+  Rectangle string2_fret11 = new Rectangle(612, 52, 23, 20);
+  Rectangle string2_fret12 = new Rectangle(660, 52, 22, 20);
+  Rectangle string2_fret13 = new Rectangle(708, 52, 22, 20);
+  Rectangle string2_fret14 = new Rectangle(755, 52, 21, 20);
+  Rectangle string2_fret15 = new Rectangle(799, 52, 21, 20);
+  Rectangle string2_fret16 = new Rectangle(843, 52, 21, 20);
+  Rectangle string2_fret17 = new Rectangle(886, 52, 20, 20);
+  Rectangle string2_fret18 = new Rectangle(926, 52, 21, 20);
+  Rectangle string2_fret19 = new Rectangle(967, 52, 21, 20);
+  Rectangle string2_fret20 = new Rectangle(1007, 52, 20, 20);
+  Rectangle string2_fret21 = new Rectangle(1045, 52, 20, 20);
+  Rectangle string2_fret22 = new Rectangle(1082, 52, 20, 20);
+  Rectangle string2_fret23 = new Rectangle(1119, 52, 20, 20);
+  Rectangle string2_fret24 = new Rectangle(1154, 52, 20, 20);
 
-  Rectangle g0 = new Rectangle(6, 90, 50, 20);
-  Rectangle g1 = new Rectangle(70, 90, 42, 20);
-  Rectangle g2 = new Rectangle(132, 90, 36, 20);
-  Rectangle g3 = new Rectangle(190, 90, 35, 20);
-  Rectangle g4 = new Rectangle(246, 90, 32, 20);
-  Rectangle g5 = new Rectangle(301, 90, 31, 20);
-  Rectangle g6 = new Rectangle(357, 90, 29, 20);
-  Rectangle g7 = new Rectangle(410, 90, 27, 20);
-  Rectangle g8 = new Rectangle(462, 90, 27, 20);
-  Rectangle g9 = new Rectangle(513, 90, 25, 20);
-  Rectangle g10 = new Rectangle(564, 90, 23, 20);
-  Rectangle g11 = new Rectangle(612, 90, 23, 20);
-  Rectangle g12 = new Rectangle(660, 90, 22, 20);
-  Rectangle g13 = new Rectangle(708, 90, 22, 20);
-  Rectangle g14 = new Rectangle(755, 90, 21, 20);
-  Rectangle g15 = new Rectangle(799, 90, 21, 20);
-  Rectangle g16 = new Rectangle(843, 90, 21, 20);
-  Rectangle g17 = new Rectangle(886, 90, 20, 20);
-  Rectangle g18 = new Rectangle(926, 90, 21, 20);
-  Rectangle g19 = new Rectangle(967, 90, 21, 20);
-  Rectangle g20 = new Rectangle(1007, 90, 20, 20);
-  Rectangle g21 = new Rectangle(1045, 90, 20, 20);
-  Rectangle g22 = new Rectangle(1082, 90, 20, 20);
-  Rectangle g23 = new Rectangle(1119, 90, 20, 20);
-  Rectangle g24 = new Rectangle(1154, 90, 20, 20);
+  Rectangle string3_fret00 = new Rectangle(6, 90, 50, 20);
+  Rectangle string3_fret01 = new Rectangle(70, 90, 42, 20);
+  Rectangle string3_fret02 = new Rectangle(132, 90, 36, 20);
+  Rectangle string3_fret03 = new Rectangle(190, 90, 35, 20);
+  Rectangle string3_fret04 = new Rectangle(246, 90, 32, 20);
+  Rectangle string3_fret05 = new Rectangle(301, 90, 31, 20);
+  Rectangle string3_fret06 = new Rectangle(357, 90, 29, 20);
+  Rectangle string3_fret07 = new Rectangle(410, 90, 27, 20);
+  Rectangle string3_fret08 = new Rectangle(462, 90, 27, 20);
+  Rectangle string3_fret09 = new Rectangle(513, 90, 25, 20);
+  Rectangle string3_fret10 = new Rectangle(564, 90, 23, 20);
+  Rectangle string3_fret11 = new Rectangle(612, 90, 23, 20);
+  Rectangle string3_fret12 = new Rectangle(660, 90, 22, 20);
+  Rectangle string3_fret13 = new Rectangle(708, 90, 22, 20);
+  Rectangle string3_fret14 = new Rectangle(755, 90, 21, 20);
+  Rectangle string3_fret15 = new Rectangle(799, 90, 21, 20);
+  Rectangle string3_fret16 = new Rectangle(843, 90, 21, 20);
+  Rectangle string3_fret17 = new Rectangle(886, 90, 20, 20);
+  Rectangle string3_fret18 = new Rectangle(926, 90, 21, 20);
+  Rectangle string3_fret19 = new Rectangle(967, 90, 21, 20);
+  Rectangle string3_fret20 = new Rectangle(1007, 90, 20, 20);
+  Rectangle string3_fret21 = new Rectangle(1045, 90, 20, 20);
+  Rectangle string3_fret22 = new Rectangle(1082, 90, 20, 20);
+  Rectangle string3_fret23 = new Rectangle(1119, 90, 20, 20);
+  Rectangle string3_fret24 = new Rectangle(1154, 90, 20, 20);
 
-  Rectangle D0 = new Rectangle(6, 129, 50, 20);
-  Rectangle D1 = new Rectangle(70, 129, 42, 20);
-  Rectangle D2 = new Rectangle(132, 129, 36, 20);
-  Rectangle D3 = new Rectangle(190, 129, 35, 20);
-  Rectangle D4 = new Rectangle(246, 129, 32, 20);
-  Rectangle D5 = new Rectangle(301, 129, 31, 20);
-  Rectangle D6 = new Rectangle(357, 129, 29, 20);
-  Rectangle D7 = new Rectangle(410, 129, 27, 20);
-  Rectangle D8 = new Rectangle(462, 129, 27, 20);
-  Rectangle D9 = new Rectangle(513, 129, 25, 20);
-  Rectangle D10 = new Rectangle(564, 129, 23, 20);
-  Rectangle D11 = new Rectangle(612, 129, 23, 20);
-  Rectangle D12 = new Rectangle(660, 129, 22, 20);
-  Rectangle D13 = new Rectangle(708, 129, 22, 20);
-  Rectangle D14 = new Rectangle(755, 129, 21, 20);
-  Rectangle D15 = new Rectangle(799, 129, 21, 20);
-  Rectangle D16 = new Rectangle(843, 129, 21, 20);
-  Rectangle D17 = new Rectangle(886, 129, 20, 20);
-  Rectangle D18 = new Rectangle(926, 129, 21, 20);
-  Rectangle D19 = new Rectangle(967, 129, 21, 20);
-  Rectangle D20 = new Rectangle(1007, 129, 20, 20);
-  Rectangle D21 = new Rectangle(1045, 129, 20, 20);
-  Rectangle D22 = new Rectangle(1082, 129, 20, 20);
-  Rectangle D23 = new Rectangle(1119, 129, 20, 20);
-  Rectangle D24 = new Rectangle(1154, 129, 20, 20);
+  Rectangle string4_fret00 = new Rectangle(6, 129, 50, 20);
+  Rectangle string4_fret01 = new Rectangle(70, 129, 42, 20);
+  Rectangle string4_fret02 = new Rectangle(132, 129, 36, 20);
+  Rectangle string4_fret03 = new Rectangle(190, 129, 35, 20);
+  Rectangle string4_fret04 = new Rectangle(246, 129, 32, 20);
+  Rectangle string4_fret05 = new Rectangle(301, 129, 31, 20);
+  Rectangle string4_fret06 = new Rectangle(357, 129, 29, 20);
+  Rectangle string4_fret07 = new Rectangle(410, 129, 27, 20);
+  Rectangle string4_fret08 = new Rectangle(462, 129, 27, 20);
+  Rectangle string4_fret09 = new Rectangle(513, 129, 25, 20);
+  Rectangle string4_fret10 = new Rectangle(564, 129, 23, 20);
+  Rectangle string4_fret11 = new Rectangle(612, 129, 23, 20);
+  Rectangle string4_fret12 = new Rectangle(660, 129, 22, 20);
+  Rectangle string4_fret13 = new Rectangle(708, 129, 22, 20);
+  Rectangle string4_fret14 = new Rectangle(755, 129, 21, 20);
+  Rectangle string4_fret15 = new Rectangle(799, 129, 21, 20);
+  Rectangle string4_fret16 = new Rectangle(843, 129, 21, 20);
+  Rectangle string4_fret17 = new Rectangle(886, 129, 20, 20);
+  Rectangle string4_fret18 = new Rectangle(926, 129, 21, 20);
+  Rectangle string4_fret19 = new Rectangle(967, 129, 21, 20);
+  Rectangle string4_fret20 = new Rectangle(1007, 129, 20, 20);
+  Rectangle string4_fret21 = new Rectangle(1045, 129, 20, 20);
+  Rectangle string4_fret22 = new Rectangle(1082, 129, 20, 20);
+  Rectangle string4_fret23 = new Rectangle(1119, 129, 20, 20);
+  Rectangle string4_fret24 = new Rectangle(1154, 129, 20, 20);
 
-  Rectangle A0 = new Rectangle(6, 169, 50, 20);
-  Rectangle A1 = new Rectangle(70, 169, 42, 20);
-  Rectangle A2 = new Rectangle(132, 169, 36, 20);
-  Rectangle A3 = new Rectangle(190, 169, 35, 20);
-  Rectangle A4 = new Rectangle(246, 169, 32, 20);
-  Rectangle A5 = new Rectangle(301, 169, 31, 20);
-  Rectangle A6 = new Rectangle(357, 169, 29, 20);
-  Rectangle A7 = new Rectangle(410, 169, 27, 20);
-  Rectangle A8 = new Rectangle(462, 169, 27, 20);
-  Rectangle A9 = new Rectangle(513, 169, 25, 20);
-  Rectangle A10 = new Rectangle(564, 169, 23, 20);
-  Rectangle A11 = new Rectangle(612, 169, 23, 20);
-  Rectangle A12 = new Rectangle(660, 169, 22, 20);
-  Rectangle A13 = new Rectangle(708, 169, 22, 20);
-  Rectangle A14 = new Rectangle(755, 169, 21, 20);
-  Rectangle A15 = new Rectangle(799, 169, 21, 20);
-  Rectangle A16 = new Rectangle(843, 169, 21, 20);
-  Rectangle A17 = new Rectangle(886, 169, 20, 20);
-  Rectangle A18 = new Rectangle(926, 169, 21, 20);
-  Rectangle A19 = new Rectangle(967, 169, 21, 20);
-  Rectangle A20 = new Rectangle(1007, 169, 20, 20);
-  Rectangle A21 = new Rectangle(1045, 169, 20, 20);
-  Rectangle A22 = new Rectangle(1082, 169, 20, 20);
-  Rectangle A23 = new Rectangle(1119, 169, 20, 20);
-  Rectangle A24 = new Rectangle(1154, 169, 20, 20);
+  Rectangle string5_fret00 = new Rectangle(6, 169, 50, 20);
+  Rectangle string5_fret01 = new Rectangle(70, 169, 42, 20);
+  Rectangle string5_fret02 = new Rectangle(132, 169, 36, 20);
+  Rectangle string5_fret03 = new Rectangle(190, 169, 35, 20);
+  Rectangle string5_fret04 = new Rectangle(246, 169, 32, 20);
+  Rectangle string5_fret05 = new Rectangle(301, 169, 31, 20);
+  Rectangle string5_fret06 = new Rectangle(357, 169, 29, 20);
+  Rectangle string5_fret07 = new Rectangle(410, 169, 27, 20);
+  Rectangle string5_fret08 = new Rectangle(462, 169, 27, 20);
+  Rectangle string5_fret09 = new Rectangle(513, 169, 25, 20);
+  Rectangle string5_fret10 = new Rectangle(564, 169, 23, 20);
+  Rectangle string5_fret11 = new Rectangle(612, 169, 23, 20);
+  Rectangle string5_fret12 = new Rectangle(660, 169, 22, 20);
+  Rectangle string5_fret13 = new Rectangle(708, 169, 22, 20);
+  Rectangle string5_fret14 = new Rectangle(755, 169, 21, 20);
+  Rectangle string5_fret15 = new Rectangle(799, 169, 21, 20);
+  Rectangle string5_fret16 = new Rectangle(843, 169, 21, 20);
+  Rectangle string5_fret17 = new Rectangle(886, 169, 20, 20);
+  Rectangle string5_fret18 = new Rectangle(926, 169, 21, 20);
+  Rectangle string5_fret19 = new Rectangle(967, 169, 21, 20);
+  Rectangle string5_fret20 = new Rectangle(1007, 169, 20, 20);
+  Rectangle string5_fret21 = new Rectangle(1045, 169, 20, 20);
+  Rectangle string5_fret22 = new Rectangle(1082, 169, 20, 20);
+  Rectangle string5_fret23 = new Rectangle(1119, 169, 20, 20);
+  Rectangle string5_fret24 = new Rectangle(1154, 169, 20, 20);
 
-  Rectangle E0 = new Rectangle(6, 208, 50, 20);
-  Rectangle E1 = new Rectangle(70, 208, 42, 20);
-  Rectangle E2 = new Rectangle(132, 208, 36, 20);
-  Rectangle E3 = new Rectangle(190, 208, 35, 20);
-  Rectangle E4 = new Rectangle(246, 208, 32, 20);
-  Rectangle E5 = new Rectangle(301, 208, 31, 20);
-  Rectangle E6 = new Rectangle(357, 208, 29, 20);
-  Rectangle E7 = new Rectangle(410, 208, 27, 20);
-  Rectangle E8 = new Rectangle(462, 208, 27, 20);
-  Rectangle E9 = new Rectangle(513, 208, 25, 20);
-  Rectangle E10 = new Rectangle(564, 208, 23, 20);
-  Rectangle E11 = new Rectangle(612, 208, 23, 20);
-  Rectangle E12 = new Rectangle(660, 208, 22, 20);
-  Rectangle E13 = new Rectangle(708, 208, 22, 20);
-  Rectangle E14 = new Rectangle(755, 208, 21, 20);
-  Rectangle E15 = new Rectangle(799, 208, 21, 20);
-  Rectangle E16 = new Rectangle(843, 208, 21, 20);
-  Rectangle E17 = new Rectangle(886, 208, 20, 20);
-  Rectangle E18 = new Rectangle(926, 208, 21, 20);
-  Rectangle E19 = new Rectangle(967, 208, 21, 20);
-  Rectangle E20 = new Rectangle(1007, 208, 20, 20);
-  Rectangle E21 = new Rectangle(1045, 208, 20, 20);
-  Rectangle E22 = new Rectangle(1082, 208, 20, 20);
-  Rectangle E23 = new Rectangle(1119, 208, 20, 20);
-  Rectangle E24 = new Rectangle(1154, 208, 20, 20);
+  Rectangle string6_fret00 = new Rectangle(6, 208, 50, 20);
+  Rectangle string6_fret01 = new Rectangle(70, 208, 42, 20);
+  Rectangle string6_fret02 = new Rectangle(132, 208, 36, 20);
+  Rectangle string6_fret03 = new Rectangle(190, 208, 35, 20);
+  Rectangle string6_fret04 = new Rectangle(246, 208, 32, 20);
+  Rectangle string6_fret05 = new Rectangle(301, 208, 31, 20);
+  Rectangle string6_fret06 = new Rectangle(357, 208, 29, 20);
+  Rectangle string6_fret07 = new Rectangle(410, 208, 27, 20);
+  Rectangle string6_fret08 = new Rectangle(462, 208, 27, 20);
+  Rectangle string6_fret09 = new Rectangle(513, 208, 25, 20);
+  Rectangle string6_fret10 = new Rectangle(564, 208, 23, 20);
+  Rectangle string6_fret11 = new Rectangle(612, 208, 23, 20);
+  Rectangle string6_fret12 = new Rectangle(660, 208, 22, 20);
+  Rectangle string6_fret13 = new Rectangle(708, 208, 22, 20);
+  Rectangle string6_fret14 = new Rectangle(755, 208, 21, 20);
+  Rectangle string6_fret15 = new Rectangle(799, 208, 21, 20);
+  Rectangle string6_fret16 = new Rectangle(843, 208, 21, 20);
+  Rectangle string6_fret17 = new Rectangle(886, 208, 20, 20);
+  Rectangle string6_fret18 = new Rectangle(926, 208, 21, 20);
+  Rectangle string6_fret19 = new Rectangle(967, 208, 21, 20);
+  Rectangle string6_fret20 = new Rectangle(1007, 208, 20, 20);
+  Rectangle string6_fret21 = new Rectangle(1045, 208, 20, 20);
+  Rectangle string6_fret22 = new Rectangle(1082, 208, 20, 20);
+  Rectangle string6_fret23 = new Rectangle(1119, 208, 20, 20);
+  Rectangle string6_fret24 = new Rectangle(1154, 208, 20, 20);
 
-  Rectangle[] rects = {e0, e1, e2, e3, e4, e5,
-          e6, e7, e8, e9,e10,e11,
-          e12,e13,e14,e15,e16,e17,
-          e18,e19,e20,e21,e22,e23,e24,
+  Rectangle[] rects =
+          {string1_fret00, string1_fret01, string1_fret02, string1_fret03, string1_fret04, string1_fret05,
+          string1_fret06, string1_fret07, string1_fret08, string1_fret09, string1_fret10, string1_fret11,
+          string1_fret12, string1_fret13, string1_fret14, string1_fret15, string1_fret16, string1_fret17,
+          string1_fret18, string1_fret19, string1_fret20, string1_fret21, string1_fret22, string1_fret23, string1_fret24,
 
-          b0, b1, b2, b3, b4, b5,
-          b6, b7, b8, b9, b10,b11,
-          b12,b13,b14,b15,b16,b17,
-          b18,b19,b20,b21,b22,b23,b24,
+          string2_fret00, string2_fret01, string2_fret02, string2_fret03, string2_fret04, string2_fret05,
+          string2_fret06, string2_fret07, string2_fret08, string2_fret09, string2_fret10, string2_fret11,
+          string2_fret12, string2_fret13, string2_fret14, string2_fret15, string2_fret16, string2_fret17,
+          string2_fret18, string2_fret19, string2_fret20, string2_fret21, string2_fret22, string2_fret23, string2_fret24,
 
-          g0, g1, g2, g3, g4, g5,
-          g6, g7, g8, g9,g10,g11,
-          g12,g13,g14,g15,g16,g17,
-          g18,g19,g20,g21,g22,g23,g24,
+          string3_fret00, string3_fret01, string3_fret02, string3_fret03, string3_fret04, string3_fret05,
+          string3_fret06, string3_fret07, string3_fret08, string3_fret09, string3_fret10, string3_fret11,
+          string3_fret12, string3_fret13, string3_fret14, string3_fret15, string3_fret16, string3_fret17,
+          string3_fret18, string3_fret19, string3_fret20, string3_fret21, string3_fret22, string3_fret23, string3_fret24,
 
-          D0, D1, D2, D3, D4, D5,
-          D6, D7, D8, D9,D10,D11,
-          D12,D13,D14,D15,D16,D17,
-          D18,D19,D20,D21,D22,D23,D24,
+          string4_fret00, string4_fret01, string4_fret02, string4_fret03, string4_fret04, string4_fret05,
+          string4_fret06, string4_fret07, string4_fret08, string4_fret09, string4_fret10, string4_fret11,
+          string4_fret12, string4_fret13, string4_fret14, string4_fret15, string4_fret16, string4_fret17,
+          string4_fret18, string4_fret19, string4_fret20, string4_fret21, string4_fret22, string4_fret23, string4_fret24,
 
-          A0, A1, A2, A3, A4, A5,
-          A6, A7, A8, A9,A10,A11,
-          A12,A13,A14,A15,A16,A17,
-          A18,A19,A20,A21,A22,A23,A24,
+          string5_fret00, string5_fret01, string5_fret02, string5_fret03, string5_fret04, string5_fret05,
+          string5_fret06, string5_fret07, string5_fret08, string5_fret09, string5_fret10, string5_fret11,
+          string5_fret12, string5_fret13, string5_fret14, string5_fret15, string5_fret16, string5_fret17,
+          string5_fret18, string5_fret19, string5_fret20, string5_fret21, string5_fret22, string5_fret23, string5_fret24,
 
-          E0, E1, E2, E3, E4, E5,
-          E6, E7, E8, E9,E10,E11,
-          E12,E13,E14,E15,E16,E17,
-          E18,E19,E20,E21,E22,E23,E24};
+          string6_fret00, string6_fret01, string6_fret02, string6_fret03, string6_fret04, string6_fret05,
+          string6_fret06, string6_fret07, string6_fret08, string6_fret09, string6_fret10, string6_fret11,
+          string6_fret12, string6_fret13, string6_fret14, string6_fret15, string6_fret16, string6_fret17,
+          string6_fret18, string6_fret19, string6_fret20, string6_fret21, string6_fret22, string6_fret23, string6_fret24};
 
   BufferedImage background;
   BufferedImage subImage;
