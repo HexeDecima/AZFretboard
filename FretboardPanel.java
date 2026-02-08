@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 //public class FretboardPanel extends JPanel implements MouseListener {
 //
@@ -286,6 +287,7 @@ public class FretboardPanel extends JPanel implements MouseListener {
   private static final int NUM_STRINGS = 6;
   private static final int NUM_FRETS = 25;
 
+
   // Original coordinates
   private int[] originalX = {6, 70, 132, 190, 246, 301, 357, 410, 462, 513, 564, 612, 660, 708, 755, 799, 843, 886, 926, 967, 1007, 1045, 1082, 1119, 1154};
   private int[] originalWidth = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25, 23, 23, 22, 22, 21, 21, 21, 20, 21, 21, 20, 20, 20, 20, 20};
@@ -305,6 +307,7 @@ public class FretboardPanel extends JPanel implements MouseListener {
   Color fretColor = new Color(0f, 0f, 0f, .1f);
   int rectRoundness = 10;
   Hashtable<String, Boolean> hits = new Hashtable<String, Boolean>();
+  java.util.ArrayList<Rectangle> activeRects = new java.util.ArrayList<>();
   NoteCalculator noteCalc = new NoteCalculator();
 
   public FretboardPanel() {
@@ -355,25 +358,41 @@ public class FretboardPanel extends JPanel implements MouseListener {
   }
 
   void onHit(Rectangle r) {
-    Graphics2D g2d = (Graphics2D) this.getGraphics();
+    // Toggle the hit state
+    boolean wasActive = hits.get(r.toString());
+    hits.put(r.toString(), !wasActive);
+    repaint();  // This will cause paintComponent to redraw everything
+  }
+
+  @Override
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    Graphics2D g2d = (Graphics2D) g;
     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    if(!hits.get(r.toString())) {
-      g2d.setColor(Color.RED);
-      g2d.fillRoundRect(r.x, r.y, r.width, r.height, rectRoundness, rectRoundness);
+    g2d.drawImage(background, 0, 0, this);
+    g2d.setColor(fretColor);
 
-      // Find which rectangle was clicked
-      int stringIndex = -1;
-      int fretNumber = -1;
-      for(int i = 0; i < rects.length; i++) {
-        if(rects[i] == r) {
-          stringIndex = i / NUM_FRETS;
-          fretNumber = i % NUM_FRETS;
-          break;
-        }
-      }
+    // Draw all fret placeholders
+    for(int i = 0; i < rects.length; i++) {
+      g2d.fillRoundRect(rects[i].x, rects[i].y, rects[i].width, rects[i].height,
+              rectRoundness, rectRoundness);
+    }
 
-      if(stringIndex != -1) {
+    // Draw red notes for active frets
+    for(int i = 0; i < rects.length; i++) {
+      if(hits.get(rects[i].toString())) {
+        Rectangle r = rects[i];
+
+        // Find string and fret indices
+        int stringIndex = i / NUM_FRETS;
+        int fretNumber = i % NUM_FRETS;
+
+        // Draw red rectangle
+        g2d.setColor(Color.RED);
+        g2d.fillRoundRect(r.x, r.y, r.width, r.height, rectRoundness, rectRoundness);
+
+        // Draw note name
         String noteName = noteCalc.getNoteName(stringIndex, fretNumber);
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Arial", Font.BOLD, 14));
@@ -386,27 +405,6 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
         g2d.drawString(noteName, x, y);
       }
-
-      hits.replace(r.toString(), false, true);
-    } else {
-      subImage = background.getSubimage(r.x, r.y, r.width, r.height);
-      g2d.drawImage(subImage, r.x, r.y, this);
-      hits.replace(r.toString(), true, false);
-    }
-  }
-
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    Graphics2D g2d = (Graphics2D) g;
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    g2d.drawImage(background, 0, 0, this);
-    g2d.setColor(fretColor);
-
-    for(int i = 0; i < rects.length; i++) {
-      g2d.fillRoundRect(rects[i].x, rects[i].y, rects[i].width, rects[i].height,
-              rectRoundness, rectRoundness);
     }
   }
 
@@ -430,4 +428,13 @@ public class FretboardPanel extends JPanel implements MouseListener {
   public boolean isUsingSharps() {
     return noteCalc.isUsingSharps();
   }
+
+  public void resetAllHits() {
+    for(Rectangle r : rects) {
+      hits.put(r.toString(), false);
+    }
+    repaint();
+  }
+
+
 }
