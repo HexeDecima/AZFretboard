@@ -180,14 +180,15 @@ public class FretboardPanel extends JPanel implements MouseListener {
   private static final int NUM_FRETS = 25;
   private static final int PANEL_WIDTH = 1200;
   private static final int PANEL_HEIGHT = 307;
+  private FretsCalculator fretsCalculator;
 
   // Background generator
   private BackgroundGenerator backgroundGenerator;
   private BufferedImage background;
 
   // Original coordinates (same as before)
-  private int[] originalX = {6, 70, 132, 190, 246, 301, 357, 410, 462, 513, 564, 612, 660, 708, 755, 799, 843, 886, 926, 967, 1007, 1045, 1082, 1119, 1154};
-  private int[] originalWidth = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25, 23, 23, 22, 22, 21, 21, 21, 20, 21, 21, 20, 20, 20, 20, 20};
+//  private int[] originalX = {6, 70, 132, 190, 246, 301, 357, 410, 462, 513, 564, 612, 660, 708, 755, 799, 843, 886, 926, 967, 1007, 1045, 1082, 1119, 1154};
+//  private int[] originalWidth = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25, 23, 23, 22, 22, 21, 21, 21, 20, 21, 21, 20, 20, 20, 20, 20};
   private int[] originalStringY = {12, 52, 90, 129, 169, 208};
 
   // Arrays for positions
@@ -204,35 +205,70 @@ public class FretboardPanel extends JPanel implements MouseListener {
   Hashtable<String, Boolean> hits = new Hashtable<String, Boolean>();
   NoteCalculator noteCalc = new NoteCalculator();
 
-  public FretboardPanel() {
-    // Set preferred size for the panel
-    setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+public FretboardPanel() {
+  // Set preferred size for the panel
+  setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 
-    // Initialize background generator and create background
-    backgroundGenerator = new BackgroundGenerator();
-    regenerateBackground();
+  // Initialize calculator FIRST
+  fretsCalculator = new FretsCalculator();
+  fretsCalculator.printPositions(); // Optional: for debugging
 
-    // Initialize positions and rectangles
-    initializeFretPositions();
-    initializeStringPositions();
-    createRectangles();
+  // Initialize background generator WITH the calculator
+  backgroundGenerator = new BackgroundGenerator(fretsCalculator);
+  regenerateBackground();
 
-    // Initialize hit tracking
-    for(Rectangle r : rects) {
-      hits.put(r.toString(), false);
-    }
+  // Get calculated positions from the calculator (not from backgroundGenerator)
+  int[] redRectLeft = fretsCalculator.getRedRectLeftEdges();
+  int[] redRectWidth = fretsCalculator.getRedRectWidths();
 
-    addMouseListener(this);
+  // Copy to our arrays
+  System.arraycopy(redRectLeft, 0, fretX, 0, Math.min(redRectLeft.length, NUM_FRETS));
+  System.arraycopy(redRectWidth, 0, fretWidth, 0, Math.min(redRectWidth.length, NUM_FRETS));
+
+  // Initialize string positions
+  initializeStringPositions();
+  createRectangles();
+
+  // Initialize hit tracking
+  for(Rectangle r : rects) {
+    hits.put(r.toString(), false);
   }
 
+  addMouseListener(this);
+}
+
   private void regenerateBackground() {
+    // Pass the fretsCalculator to BackgroundGenerator
+    backgroundGenerator = new BackgroundGenerator(fretsCalculator);
     background = backgroundGenerator.generateFretboard(NUM_STRINGS, NUM_FRETS, PANEL_WIDTH, PANEL_HEIGHT);
   }
 
   private void initializeFretPositions() {
+    // Starting values matching your first position
+    double startX = 6.0;
+    double startWidth = 50.0;
+
+    // Simple exponential decay for width
     for(int i = 0; i < NUM_FRETS; i++) {
-      fretX[i] = originalX[i];
-      fretWidth[i] = originalWidth[i];
+      // Width decreases slowly, then stabilizes
+      fretWidth[i] = (int)(startWidth * Math.pow(0.97, i));
+
+      // Minimum width
+      if(fretWidth[i] < 20) {
+        fretWidth[i] = 20;
+      }
+
+      // Position based on previous
+      if(i == 0) {
+        fretX[i] = (int)startX;
+      } else {
+        // Each position is previous position + previous width + gap
+        // Gap gets smaller as we go higher up the neck
+        int gap = (int)(12 * Math.pow(0.95, i));
+        if(gap < 2) gap = 2;
+
+        fretX[i] = fretX[i-1] + fretWidth[i-1] + gap;
+      }
     }
   }
 
