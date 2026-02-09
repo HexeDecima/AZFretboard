@@ -40,6 +40,9 @@ public class FretboardPanel extends JPanel implements MouseListener {
     // Set preferred size for the panel
     setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 
+    // Set dark background for the panel
+    setBackground(new Color(45, 45, 50));
+
     // Initialize calculator
     fretsCalculator = new FretsCalculator();
     fretsCalculator.printAllPositions(); // This will show the 51 positions
