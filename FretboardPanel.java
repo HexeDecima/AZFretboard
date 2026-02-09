@@ -1,172 +1,3 @@
-//import javax.imageio.ImageIO;
-//import javax.swing.*;
-//import java.awt.*;
-//import java.awt.event.MouseEvent;
-//import java.awt.event.MouseListener;
-//import java.awt.image.BufferedImage;
-//import java.io.IOException;
-//import java.net.MalformedURLException;
-//import java.util.Hashtable;
-//import java.util.ArrayList;
-//
-//public class FretboardPanel extends JPanel implements MouseListener {
-//
-//  // Configuration
-//  private static final int NUM_STRINGS = 6;
-//  private static final int NUM_FRETS = 25;
-//
-//
-//  // Original coordinates
-//  private int[] originalX = {6, 70, 132, 190, 246, 301, 357, 410, 462, 513, 564, 612, 660, 708, 755, 799, 843, 886, 926, 967, 1007, 1045, 1082, 1119, 1154};
-//  private int[] originalWidth = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25, 23, 23, 22, 22, 21, 21, 21, 20, 21, 21, 20, 20, 20, 20, 20};
-//  private int[] originalStringY = {12, 52, 90, 129, 169, 208};
-//
-//  // Arrays for positions
-//  private int[] fretX = new int[NUM_FRETS];
-//  private int[] fretWidth = new int[NUM_FRETS];
-//  private int[] stringY = new int[NUM_STRINGS];
-//
-//  // Rectangle array
-//  private Rectangle[] rects;
-//
-//  // Other variables
-//  BufferedImage background;
-//  BufferedImage subImage;
-//  Color fretColor = new Color(0f, 0f, 0f, .1f);
-//  int rectRoundness = 10;
-//  Hashtable<String, Boolean> hits = new Hashtable<String, Boolean>();
-//  java.util.ArrayList<Rectangle> activeRects = new java.util.ArrayList<>();
-//  NoteCalculator noteCalc = new NoteCalculator();
-//
-//  public FretboardPanel() {
-//    initializeFretPositions();
-//    initializeStringPositions();
-//    createRectangles();
-//
-//    try {
-//      background = ImageIO.read(getClass().getResource("fretboard.png"));
-//    } catch(Exception e) {
-//      e.printStackTrace();
-//    }
-//
-//    for(Rectangle r : rects) {
-//      hits.put(r.toString(), false);
-//    }
-//
-//    addMouseListener(this);
-//  }
-//
-//  private void initializeFretPositions() {
-//    for(int i = 0; i < NUM_FRETS; i++) {
-//      fretX[i] = originalX[i];
-//      fretWidth[i] = originalWidth[i];
-//    }
-//  }
-//
-//  private void initializeStringPositions() {
-//    for(int i = 0; i < NUM_STRINGS; i++) {
-//      stringY[i] = originalStringY[i];
-//    }
-//  }
-//
-//  private void createRectangles() {
-//    rects = new Rectangle[NUM_STRINGS * NUM_FRETS];
-//
-//    for(int string = 0; string < NUM_STRINGS; string++) {
-//      for(int fret = 0; fret < NUM_FRETS; fret++) {
-//        int index = string * NUM_FRETS + fret;
-//        rects[index] = new Rectangle(
-//                fretX[fret],
-//                stringY[string],
-//                fretWidth[fret],
-//                20
-//        );
-//      }
-//    }
-//  }
-//
-//  void onHit(Rectangle r) {
-//    // Toggle the hit state
-//    boolean wasActive = hits.get(r.toString());
-//    hits.put(r.toString(), !wasActive);
-//    repaint();  // This will cause paintComponent to redraw everything
-//  }
-//
-//  @Override
-//  protected void paintComponent(Graphics g) {
-//    super.paintComponent(g);
-//    Graphics2D g2d = (Graphics2D) g;
-//    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//
-//    g2d.drawImage(background, 0, 0, this);
-//    g2d.setColor(fretColor);
-//
-//    // Draw all fret placeholders
-//    for(int i = 0; i < rects.length; i++) {
-//      g2d.fillRoundRect(rects[i].x, rects[i].y, rects[i].width, rects[i].height,
-//              rectRoundness, rectRoundness);
-//    }
-//
-//    // Draw red notes for active frets
-//    for(int i = 0; i < rects.length; i++) {
-//      if(hits.get(rects[i].toString())) {
-//        Rectangle r = rects[i];
-//
-//        // Find string and fret indices
-//        int stringIndex = i / NUM_FRETS;
-//        int fretNumber = i % NUM_FRETS;
-//
-//        // Draw red rectangle
-//        g2d.setColor(Color.RED);
-//        g2d.fillRoundRect(r.x, r.y, r.width, r.height, rectRoundness, rectRoundness);
-//
-//        // Draw note name
-//        String noteName = noteCalc.getNoteName(stringIndex, fretNumber);
-//        g2d.setColor(Color.WHITE);
-//        g2d.setFont(new Font("Arial", Font.BOLD, 14));
-//
-//        FontMetrics fm = g2d.getFontMetrics();
-//        int textWidth = fm.stringWidth(noteName);
-//        int textHeight = fm.getAscent();
-//        int x = r.x + (r.width - textWidth) / 2;
-//        int y = r.y + (r.height + textHeight) / 2 - 2;
-//
-//        g2d.drawString(noteName, x, y);
-//      }
-//    }
-//  }
-//
-//  public void mousePressed(MouseEvent e) {}
-//  public void mouseReleased(MouseEvent e) {
-//    for(int i = 0; i < rects.length; i++) {
-//      if(rects[i].contains(e.getX(), e.getY())) {
-//        onHit(rects[i]);
-//        break;
-//      }
-//    }
-//  }
-//  public void mouseEntered(MouseEvent e) {}
-//  public void mouseExited(MouseEvent e) {}
-//  public void mouseClicked(MouseEvent e) {}
-//
-//  public void toggleNoteSystem() {
-//    noteCalc.toggleSharpFlat();
-//  }
-//
-//  public boolean isUsingSharps() {
-//    return noteCalc.isUsingSharps();
-//  }
-//
-//  public void resetAllHits() {
-//    for(Rectangle r : rects) {
-//      hits.put(r.toString(), false);
-//    }
-//    repaint();
-//  }
-//
-//
-//}
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -205,71 +36,42 @@ public class FretboardPanel extends JPanel implements MouseListener {
   Hashtable<String, Boolean> hits = new Hashtable<String, Boolean>();
   NoteCalculator noteCalc = new NoteCalculator();
 
-public FretboardPanel() {
-  // Set preferred size for the panel
-  setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+  public FretboardPanel() {
+    // Set preferred size for the panel
+    setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 
-  // Initialize calculator FIRST
-  fretsCalculator = new FretsCalculator();
-  fretsCalculator.printPositions(); // Optional: for debugging
+    // Initialize calculator
+    fretsCalculator = new FretsCalculator();
+    fretsCalculator.printAllPositions(); // This will show the 51 positions
 
-  // Initialize background generator WITH the calculator
-  backgroundGenerator = new BackgroundGenerator(fretsCalculator);
-  regenerateBackground();
+    // Initialize background generator
+    backgroundGenerator = new BackgroundGenerator(fretsCalculator);
+    regenerateBackground();
 
-  // Get calculated positions from the calculator (not from backgroundGenerator)
-  int[] redRectLeft = fretsCalculator.getRedRectLeftEdges();
-  int[] redRectWidth = fretsCalculator.getRedRectWidths();
+    // Get calculated positions from the calculator
+    int[] redRectLeft = fretsCalculator.getRedRectLeftEdges();
+    int[] redRectWidth = fretsCalculator.getRedRectWidths();
 
-  // Copy to our arrays
-  System.arraycopy(redRectLeft, 0, fretX, 0, Math.min(redRectLeft.length, NUM_FRETS));
-  System.arraycopy(redRectWidth, 0, fretWidth, 0, Math.min(redRectWidth.length, NUM_FRETS));
+    // Copy to our arrays
+    System.arraycopy(redRectLeft, 0, fretX, 0, Math.min(redRectLeft.length, NUM_FRETS));
+    System.arraycopy(redRectWidth, 0, fretWidth, 0, Math.min(redRectWidth.length, NUM_FRETS));
 
-  // Initialize string positions
-  initializeStringPositions();
-  createRectangles();
+    // Initialize string positions and create rectangles
+    initializeStringPositions();
+    createRectangles();
 
-  // Initialize hit tracking
-  for(Rectangle r : rects) {
-    hits.put(r.toString(), false);
+    // Initialize hit tracking
+    for(Rectangle r : rects) {
+      hits.put(r.toString(), false);
+    }
+
+    addMouseListener(this);
   }
-
-  addMouseListener(this);
-}
 
   private void regenerateBackground() {
     // Pass the fretsCalculator to BackgroundGenerator
     backgroundGenerator = new BackgroundGenerator(fretsCalculator);
     background = backgroundGenerator.generateFretboard(NUM_STRINGS, NUM_FRETS, PANEL_WIDTH, PANEL_HEIGHT);
-  }
-
-  private void initializeFretPositions() {
-    // Starting values matching your first position
-    double startX = 6.0;
-    double startWidth = 50.0;
-
-    // Simple exponential decay for width
-    for(int i = 0; i < NUM_FRETS; i++) {
-      // Width decreases slowly, then stabilizes
-      fretWidth[i] = (int)(startWidth * Math.pow(0.97, i));
-
-      // Minimum width
-      if(fretWidth[i] < 20) {
-        fretWidth[i] = 20;
-      }
-
-      // Position based on previous
-      if(i == 0) {
-        fretX[i] = (int)startX;
-      } else {
-        // Each position is previous position + previous width + gap
-        // Gap gets smaller as we go higher up the neck
-        int gap = (int)(12 * Math.pow(0.95, i));
-        if(gap < 2) gap = 2;
-
-        fretX[i] = fretX[i-1] + fretWidth[i-1] + gap;
-      }
-    }
   }
 
   private void initializeStringPositions() {

@@ -1,68 +1,91 @@
 public class FretsCalculator {
-    private static final int TOTAL_POSITIONS = 50; // 25 red rects + 25 frets
-    private static final int NUM_FRETS = 25;
-    private static final int PANEL_WIDTH = 1200;
+    private static final int NUM_POSITIONS = 51; // Positions 0-50
+    private static final int NUM_RED_RECTS = 25; // Red rectangles 0-24
+    private static final int NUM_FRETS = 24;     // Frets 1-24
 
-    // Polynomial coefficients that approximate your original red rectangle centers
-    // These were calculated to match your original positions
-    private static final double A = 31.0;
-    private static final double B = 59.4578;
-    private static final double C = -0.5104;
-
-    // Width formula coefficients
-    private static final double D = 50.0;
-    private static final double E = -3.416;
-    private static final double F = 0.09025;
-
-    // Arrays to store calculated positions
-    private int[] redRectCenters;
-    private int[] redRectWidths;
+    private int[] positions;     // All 51 positions (x-coordinates)
     private int[] redRectLeftEdges;
-    private int[] fretWireCenters;
+    private int[] redRectWidths;
+    private int[] redRectCenters;
+    private int[] fretCenters;
 
     public FretsCalculator() {
+        positions = new int[NUM_POSITIONS];
+        redRectLeftEdges = new int[NUM_RED_RECTS];
+        redRectWidths = new int[NUM_RED_RECTS];
+        redRectCenters = new int[NUM_RED_RECTS];
+        fretCenters = new int[NUM_FRETS + 1]; // Index 0 unused
+
         calculateAllPositions();
     }
 
     private void calculateAllPositions() {
-        // Step 1: Calculate red rectangle centers using polynomial formula
-        redRectCenters = new int[NUM_FRETS];
-        for (int i = 0; i < NUM_FRETS; i++) {
-            redRectCenters[i] = (int)(A + B*i + C*i*i);
+        // Set initial nut positions (fixed)
+        positions[0] = 0;   // Nut left edge
+        positions[1] = 31;  // Nut center / redRect0 center
+        positions[2] = 63;  // Nut right edge
+
+        // Target position for the last fret (fret24 center)
+        int targetLastPos = 1180;
+        int intervals = NUM_POSITIONS - 3; // 48 intervals from position 2 to 50
+        double totalDistance = targetLastPos - positions[2]; // Should be 1117
+
+        // Geometric decay factor
+        // r=0.99 gives first spacing ~29 and last spacing ~18
+        // This provides a natural decay that fits within bounds
+        double r = 0.99;
+
+        // Pre-calculate r^intervals
+        double r_pow = Math.pow(r, intervals); // r^48
+        double denom = 1 - r_pow; // 1 - r^48
+
+        // Generate positions using geometric progression formula
+        for (int i = 3; i < NUM_POSITIONS; i++) {
+            int t = i - 2; // t from 1 to 48
+            double fraction = (1 - Math.pow(r, t)) / denom;
+            positions[i] = positions[2] + (int)(totalDistance * fraction);
         }
 
-        // Step 2: Calculate red rectangle widths
-        redRectWidths = new int[NUM_FRETS];
-        for (int i = 0; i < NUM_FRETS; i++) {
-            double width = D + E*i + F*i*i;
-            redRectWidths[i] = Math.max((int)width, 20); // Minimum width 20
+        // Ensure the last position is exactly the target
+        positions[NUM_POSITIONS - 1] = targetLastPos;
+
+        // Map positions to red rectangles and frets
+        // Red rectangle centers are at odd positions (1, 3, 5, ..., 49)
+        for (int i = 0; i < NUM_RED_RECTS; i++) {
+            int posIndex = 2 * i + 1;
+            redRectCenters[i] = positions[posIndex];
         }
 
-        // Step 3: Calculate left edges of red rectangles
-        redRectLeftEdges = new int[NUM_FRETS];
-        for (int i = 0; i < NUM_FRETS; i++) {
+        // Fret centers are at even positions (4, 6, 8, ..., 50)
+        for (int fret = 1; fret <= NUM_FRETS; fret++) {
+            int posIndex = 2 * fret + 2;
+            fretCenters[fret] = positions[posIndex];
+        }
+
+        // Calculate red rectangle widths (80% of distance between surrounding positions)
+        for (int i = 0; i < NUM_RED_RECTS; i++) {
+            int posIndex = 2 * i + 1;
+
+            if (i == 0) {
+                // Red rect 0: between position 0 and 2
+                int distance = positions[2] - positions[0];
+                redRectWidths[i] = (int)(distance * 0.8);
+            } else {
+                // Other red rects: between position before and after
+                int beforePos = positions[posIndex - 1];
+                int afterPos = positions[posIndex + 1];
+                int distance = afterPos - beforePos;
+                redRectWidths[i] = (int)(distance * 0.8);
+            }
+
+            // Ensure minimum width of 20
+            redRectWidths[i] = Math.max(redRectWidths[i], 20);
+
+            // Calculate left edge
             redRectLeftEdges[i] = redRectCenters[i] - redRectWidths[i] / 2;
         }
-
-        // Step 4: Calculate fret wire centers (between red rectangles)
-        fretWireCenters = new int[NUM_FRETS];
-
-        // Fret 0 (nut) is between red rect 0 and red rect 1
-        int rightEdgeOfRedRect0 = redRectLeftEdges[0] + redRectWidths[0];
-        fretWireCenters[0] = (rightEdgeOfRedRect0 + redRectLeftEdges[1]) / 2;
-
-        // Fret 1-23: between red rect i and red rect i+1
-        for (int i = 1; i < NUM_FRETS - 1; i++) {
-            int rightEdge = redRectLeftEdges[i] + redRectWidths[i];
-            fretWireCenters[i] = (rightEdge + redRectLeftEdges[i + 1]) / 2;
-        }
-
-        // Fret 24: after last red rect, use same spacing as previous
-        int lastGap = redRectLeftEdges[23] - (redRectLeftEdges[22] + redRectWidths[22]);
-        fretWireCenters[24] = redRectLeftEdges[24] + redRectWidths[24] + (lastGap / 2);
     }
 
-    // Getters for all calculated arrays
     public int[] getRedRectLeftEdges() {
         return redRectLeftEdges;
     }
@@ -71,23 +94,41 @@ public class FretsCalculator {
         return redRectWidths;
     }
 
-    public int[] getRedRectCenters() {
-        return redRectCenters;
+    // Get specific positions
+    public int getNutLeftEdge() {
+        return positions[0];
     }
 
-    public int[] getFretWireCenters() {
-        return fretWireCenters;
+    public int getNutRightEdge() {
+        return positions[2];
     }
 
-    // Helper method to print positions for debugging
-    public void printPositions() {
-        System.out.println("=== Calculated Positions ===");
-        for (int i = 0; i < NUM_FRETS; i++) {
-            System.out.println("Fret " + i +
-                    ": RedRect Left=" + redRectLeftEdges[i] +
-                    ", Width=" + redRectWidths[i] +
-                    ", Center=" + redRectCenters[i] +
-                    ", FretWire Center=" + fretWireCenters[i]);
+    // Get red rectangle center by index
+    public int getRedRectCenter(int index) {
+        if (index < 0 || index >= NUM_RED_RECTS) return 0;
+        return redRectCenters[index];
+    }
+
+    // Get fret center by fret number (1-24)
+    public int getFretCenter(int fret) {
+        if (fret < 1 || fret > NUM_FRETS) return 0;
+        return fretCenters[fret];
+    }
+
+    // Print all positions for debugging
+    public void printAllPositions() {
+        System.out.println("=== All 51 Positions ===");
+        for (int i = 0; i < NUM_POSITIONS; i++) {
+            String label = "";
+            if (i == 0) label = "Nut left edge";
+            else if (i == 1) label = "Nut center, RedRect00 center";
+            else if (i == 2) label = "Nut right edge";
+            else if (i % 2 == 1) label = "RedRect" + String.format("%02d", (i-1)/2) + " center";
+            else label = "Fret" + String.format("%02d", (i-2)/2) + " center";
+
+            String spacing = (i == 0) ? "" : String.format(" (+%3d)", positions[i] - positions[i-1]);
+            System.out.println(String.format("Pos %2d: %4d%s - %s", i, positions[i], spacing, label));
         }
+        System.out.println("=== End ===");
     }
 }

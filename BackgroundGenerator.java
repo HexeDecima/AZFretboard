@@ -39,79 +39,18 @@ public class BackgroundGenerator {
     private static final int FRET_THICKNESS = 6;
     private FretsCalculator fretsCalculator;
 
-    public BackgroundGenerator() {
-        // Default constructor - will be used if no FretsCalculator is provided
-    }
-
     public BackgroundGenerator(FretsCalculator calculator) {
         this.fretsCalculator = calculator;
     }
 
-    private void calculateFretPositions(int numFrets, int[] fretWireX) {
-        // Formula that approximates your original fret wire positions
-        // fretWireX will store the center of each fret wire
-
-        // Fret 0 (nut) position
-        fretWireX[0] = 63; // Matches your original nut position
-
-        // Exponential spacing formula for the rest
-        for (int i = 1; i < numFrets; i++) {
-            // This formula creates decreasing spacing like a real guitar but adjusted
-            double spacing = 64.0 * Math.pow(0.94, i);
-            fretWireX[i] = fretWireX[i-1] + (int)spacing;
-
-            // Ensure minimum spacing
-            if (i > 20) {
-                fretWireX[i] = fretWireX[i-1] + 20;
-            }
-        }
-    }
-
-    private void calculateRedRectPositions(int numFrets, int[] fretWireX,
-                                           int[] redRectX, int[] redRectWidth) {
-        // Red rectangle 0 (open string) is between left edge and fret 0
-        redRectX[0] = 0;
-        redRectWidth[0] = 50;
-
-        // Calculate red rectangles for frets 1-24
-        for (int i = 1; i < numFrets; i++) {
-            // Red rectangle i is centered between fret wire i-1 and fret wire i
-            int centerX = (fretWireX[i-1] + fretWireX[i]) / 2;
-            int width;
-
-            if (i == 1) {
-                width = 42;
-            } else {
-                // Width decreases as we go up the neck
-                width = (int)(50.0 * Math.pow(0.97, i));
-                if (width < 20) width = 20;
-            }
-
-            redRectX[i] = centerX - width/2;
-            redRectWidth[i] = width;
-        }
-    }
-
     public BufferedImage generateFretboard(int numStrings, int numFrets, int width, int height) {
-        // If we have a FretsCalculator, use it. Otherwise use old calculation.
-        if (fretsCalculator != null) {
-            // Get positions from calculator
-            int[] redRectLeft = fretsCalculator.getRedRectLeftEdges();
-            int[] redRectWidth = fretsCalculator.getRedRectWidths();
-
-            // Store these for other methods to use
-            fretXArray = redRectLeft;
-            fretWidthArray = redRectWidth;
-        } else {
-            // Old calculation for backward compatibility
-            int[] fretWireX = new int[numFrets];
-            calculateFretPositions(numFrets, fretWireX);
-
-            // Calculate red rectangle positions
-            fretXArray = new int[numFrets];
-            fretWidthArray = new int[numFrets];
-            calculateRedRectPositions(numFrets, fretWireX, fretXArray, fretWidthArray);
+        if (fretsCalculator == null) {
+            fretsCalculator = new FretsCalculator();
         }
+
+        // Get red rectangle positions for other methods
+        fretXArray = fretsCalculator.getRedRectLeftEdges();
+        fretWidthArray = fretsCalculator.getRedRectWidths();
 
         BufferedImage baseImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D baseG2d = baseImage.createGraphics();
@@ -132,14 +71,14 @@ public class BackgroundGenerator {
 
         g2d.drawImage(blurredImage, 0, 0, null);
 
-        int[] stringYPositions = calculateStringPositions(numStrings, height);
+        int[] stringYPositions = calculateStringPositions(numStrings);
         int[] stringHeights = calculateStringHeights(numStrings);
 
         drawFretMarkers(g2d, numFrets, numStrings, stringYPositions);
-        drawAllFrets(g2d, numFrets, width, height);
+        drawAllFrets(g2d, numFrets, height);
 
         for (int i = 0; i < numStrings; i++) {
-            drawString(g2d, stringYPositions[i], stringHeights[i], width, i);
+            drawString(g2d, stringYPositions[i], stringHeights[i], width);
         }
 
         g2d.dispose();
@@ -235,7 +174,7 @@ public class BackgroundGenerator {
         g2d.setStroke(new BasicStroke(1));
     }
 
-    private int[] calculateStringPositions(int numStrings, int height) {
+    private int[] calculateStringPositions(int numStrings) {
         int[] positions = new int[numStrings];
 
         if (numStrings == 6) {
@@ -262,55 +201,31 @@ public class BackgroundGenerator {
         return heights;
     }
 
-    private void drawAllFrets(Graphics2D g2d, int numFrets, int width, int height) {
-        drawNut(g2d, width, height);
+    private void drawAllFrets(Graphics2D g2d, int numFrets, int height) {
+        drawNut(g2d, height);
 
         for (int fret = 1; fret < numFrets; fret++) {
-            drawFret(g2d, fret, width, height);
+            drawFret(g2d, fret, height);
         }
     }
 
-    private void drawNut(Graphics2D g2d, int width, int height) {
-        // Use the calculated arrays
-        int redRect0Right = fretXArray[0] + fretWidthArray[0];
-        int redRect1Left = fretXArray[1];
-        int nutRightEdge = (redRect0Right + redRect1Left) / 2;
+    private void drawNut(Graphics2D g2d, int height) {
+        // Get nut position from FretsCalculator
+        int nutLeftEdge = fretsCalculator.getNutLeftEdge();
+        int nutRightEdge = fretsCalculator.getNutRightEdge();
 
-        drawFretAtPosition(g2d, 0, nutRightEdge, height);
+        // Draw nut from left edge to right edge
+        drawFretAtPosition(g2d, nutLeftEdge, nutRightEdge, height);
     }
 
-private void drawFret(Graphics2D g2d, int fretNum, int width, int height) {
-    int leftEdge, rightEdge;
+    private void drawFret(Graphics2D g2d, int fretNum, int height) {
+        // Get fret center from FretsCalculator
+        int fretCenterX = fretsCalculator.getFretCenter(fretNum);
+        int fretLeftX = fretCenterX - FRET_THICKNESS / 2;
+        int fretRightX = fretLeftX + FRET_THICKNESS;
 
-    if (fretNum <= 23) {
-        int leftRectIdx = fretNum;
-        int rightRectIdx = fretNum + 1;
-
-        leftEdge = fretXArray[leftRectIdx] + fretWidthArray[leftRectIdx];
-        rightEdge = fretXArray[rightRectIdx];
-    } else if (fretNum == 24) {
-        int lastIndex = 24;
-        int secondLastIndex = 23;
-        int gap = fretXArray[24] - (fretXArray[23] + fretWidthArray[23]);
-
-        leftEdge = fretXArray[lastIndex] + fretWidthArray[lastIndex];
-        rightEdge = leftEdge + gap;
-    } else {
-        int lastIndex = 24;
-        int secondLastIndex = 23;
-        int gap = fretXArray[24] - (fretXArray[23] + fretWidthArray[23]);
-
-        int positionFromLast = fretNum - 24;
-        leftEdge = fretXArray[lastIndex] + fretWidthArray[lastIndex] + (gap * positionFromLast);
-        rightEdge = leftEdge + gap;
+        drawFretAtPosition(g2d, fretLeftX, fretRightX, height);
     }
-
-    int fretCenterX = (leftEdge + rightEdge) / 2;
-    int fretLeftX = fretCenterX - FRET_THICKNESS / 2;
-    int fretRightX = fretLeftX + FRET_THICKNESS;
-
-    drawFretAtPosition(g2d, fretLeftX, fretRightX, height);
-}
 
     private void drawFretAtPosition(Graphics2D g2d, int leftX, int rightX, int height) {
         int fretWidth = rightX - leftX;
@@ -326,7 +241,7 @@ private void drawFret(Graphics2D g2d, int fretNum, int width, int height) {
         g2d.fillRect(leftX + 1, 1, fretWidth - 2, height - 2);
     }
 
-    private void drawString(Graphics2D g2d, int y, int height, int panelWidth, int stringNum) {
+    private void drawString(Graphics2D g2d, int y, int height, int panelWidth) {
         int stringY = y - height/2;
 
         g2d.setColor(Color.BLACK);
@@ -340,40 +255,33 @@ private void drawFret(Graphics2D g2d, int fretNum, int width, int height) {
         g2d.fillRect(1, stringY + 1, panelWidth - 2, height - 2);
     }
 
-private void drawFretMarkers(Graphics2D g2d, int numFrets, int numStrings, int[] stringY) {
-    int[] markerFrets = {3, 5, 7, 9, 12, 15, 17, 19, 21, 24};
-    int dotDiameter = 25;
+    private void drawFretMarkers(Graphics2D g2d, int numFrets, int numStrings, int[] stringY) {
+        int[] markerFrets = {3, 5, 7, 9, 12, 15, 17, 19, 21, 24};
+        int dotDiameter = 25;
 
-    // Debug output to see exact positions
-    System.out.println("=== Dot Position Calculations ===");
+        System.out.println("=== Dot Position Calculations ===");
 
-    for (int fret : markerFrets) {
-        if (fret < numFrets) {
-            // Calculate based on actual red rectangle center
-            int redRectLeft = fretXArray[fret];
-            int redRectWidth = fretWidthArray[fret];
-            int redRectCenter = redRectLeft + redRectWidth / 2;
+        for (int fret : markerFrets) {
+            if (fret <= numFrets) {
+                // Get the ADJUSTED red rectangle center (now perfectly centered)
+                int redRectCenter = fretsCalculator.getRedRectCenter(fret);
 
-            System.out.println("Fret " + fret + ": " +
-                    "Left=" + redRectLeft +
-                    ", Width=" + redRectWidth +
-                    ", Center=" + redRectCenter);
+                System.out.println("Fret " + fret + ": Center=" + redRectCenter);
 
-            if (fret == 12 || fret == 24) {
-                int topY = stringY[0];
-                int bottomY = stringY[numStrings - 1];
-
-                drawPearlDot(g2d, redRectCenter, topY, dotDiameter);
-                drawPearlDot(g2d, redRectCenter, bottomY, dotDiameter);
-            } else {
-                int middleY = (stringY[0] + stringY[numStrings - 1]) / 2;
-                drawPearlDot(g2d, redRectCenter, middleY, dotDiameter);
+                if (fret == 12 || fret == 24) {
+                    int topY = stringY[0];
+                    int bottomY = stringY[numStrings - 1];
+                    drawPearlDot(g2d, redRectCenter, topY, dotDiameter);
+                    drawPearlDot(g2d, redRectCenter, bottomY, dotDiameter);
+                } else {
+                    int middleY = (stringY[0] + stringY[numStrings - 1]) / 2;
+                    drawPearlDot(g2d, redRectCenter, middleY, dotDiameter);
+                }
             }
         }
-    }
 
-    System.out.println("=== End Dot Calculations ===");
-}
+        System.out.println("=== End Dot Calculations ===");
+    }
 
     private void drawPearlDot(Graphics2D g2d, int x, int y, int diameter) {
         g2d.setColor(Color.BLACK);
@@ -387,11 +295,4 @@ private void drawFretMarkers(Graphics2D g2d, int numFrets, int numStrings, int[]
         g2d.fillOval(x - diameter/2 + 1, y - diameter/2 + 1, diameter - 2, diameter - 2);
     }
 
-    public int[] getFretXArray() {
-        return fretXArray;
-    }
-
-    public int[] getFretWidthArray() {
-        return fretWidthArray;
-    }
 }

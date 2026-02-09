@@ -29,9 +29,4 @@ public class NoteCalculator {
     public boolean isUsingSharps() {
         return useSharps;
     }
-
-    // Set state
-    public void setUseSharps(boolean useSharps) {
-        this.useSharps = useSharps;
-    }
 }
