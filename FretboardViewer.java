@@ -5,19 +5,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.JComboBox;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.BorderFactory;
 
 public class FretboardViewer extends JFrame implements ActionListener {
 
@@ -52,16 +43,27 @@ public class FretboardViewer extends JFrame implements ActionListener {
     controlPanel.add(toggleButton);
     controlPanel.add(exportButton);
 
-    // Strings dropdown
+    // --- Strings dropdown ---
     JLabel stringsLabel = new JLabel("Strings:");
     stringsLabel.setForeground(Color.WHITE);
     controlPanel.add(stringsLabel);
 
     String[] stringOptions = {"4", "5", "6", "7", "8", "9", "10"};
     JComboBox<String> stringCombo = new JComboBox<>(stringOptions);
-    stringCombo.setForeground(Color.WHITE);
-    stringCombo.setBackground(new Color(70, 70, 80));
     stringCombo.setSelectedItem("6");
+
+    // Force‑white renderer for this combo box
+    stringCombo.setRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                    int index, boolean isSelected, boolean cellHasFocus) {
+        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        c.setForeground(Color.WHITE);
+        c.setBackground(isSelected ? new Color(60, 60, 70) : new Color(45, 45, 52));
+        return c;
+      }
+    });
+
     stringCombo.addActionListener(e -> {
       int newStrings = Integer.parseInt((String) stringCombo.getSelectedItem());
       fretboardPanel.setNumStrings(newStrings);
@@ -74,16 +76,11 @@ public class FretboardViewer extends JFrame implements ActionListener {
     add(controlPanel, BorderLayout.PAGE_START);
     add(fretboardPanel, BorderLayout.CENTER);
 
-    // Force layout to calculate preferred sizes
     controlPanel.revalidate();
     fretboardPanel.revalidate();
 
-    // Pack the frame to fit its contents' preferred sizes, including window decorations
     pack();
-
-    // Now set the width to 1200, keep the height calculated by pack()
     setSize(1200, getHeight());
-
     setResizable(false);
     setLocationRelativeTo(null);
 
@@ -92,75 +89,104 @@ public class FretboardViewer extends JFrame implements ActionListener {
 
   private void setDarkTheme() {
     try {
-      // Set platform-specific properties for dark title bars
       String os = System.getProperty("os.name").toLowerCase();
 
       if (os.contains("mac")) {
-        // macOS specific dark mode for title bars
+        try {
+          UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+          UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        }
         System.setProperty("apple.awt.application.appearance", "NSAppearanceNameDarkAqua");
         System.setProperty("apple.laf.useScreenMenuBar", "true");
       } else if (os.contains("windows")) {
-        // Windows: try to force dark mode
         System.setProperty("sun.awt.noerasebackground", "true");
-        // Use Windows look and feel
         UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
       } else {
-        // Linux/Unix: use GTK if available
         try {
           UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         } catch (Exception e) {
-          // Fall back to Metal
           UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         }
       }
 
-      // Customize for dark mode
+      // Dark window decorations (title bar, borders)
+      JFrame.setDefaultLookAndFeelDecorated(true);
+      JDialog.setDefaultLookAndFeelDecorated(true);
+
+      // === GLOBAL DARK THEME ===
+      UIManager.put("nimbusBase", new Color(45, 45, 50));
+      UIManager.put("nimbusBlueGrey", new Color(35, 35, 40));
+      UIManager.put("nimbusBorder", new Color(30, 30, 35));
+
       UIManager.put("Panel.background", new Color(45, 45, 50));
       UIManager.put("OptionPane.background", new Color(45, 45, 50));
+      UIManager.put("OptionPane.foreground", Color.WHITE);
       UIManager.put("OptionPane.messageForeground", Color.WHITE);
       UIManager.put("OptionPane.messageBackground", new Color(45, 45, 50));
-      UIManager.put("OptionPane.foreground", Color.WHITE);
 
-      // File chooser customization
-      UIManager.put("FileChooser.background", new Color(50, 50, 55));
-      UIManager.put("FileChooser.foreground", Color.WHITE);
-
-      // Button customization
       UIManager.put("Button.background", new Color(70, 70, 80));
       UIManager.put("Button.foreground", Color.WHITE);
-      UIManager.put("Button.select", new Color(90, 90, 100));
+      UIManager.put("Button.select", new Color(60, 60, 70));
 
-      // Text field customization
       UIManager.put("TextField.background", new Color(60, 60, 65));
       UIManager.put("TextField.foreground", Color.WHITE);
       UIManager.put("TextField.caretForeground", Color.WHITE);
-      UIManager.put("TextField.selectionBackground", new Color(80, 80, 90));
+      UIManager.put("TextField.selectionBackground", new Color(50, 50, 60));
       UIManager.put("TextField.selectionForeground", Color.WHITE);
 
-      // List and combo box customization
-      UIManager.put("List.background", new Color(50, 50, 55));
+      UIManager.put("List.background", new Color(60, 60, 65));
       UIManager.put("List.foreground", Color.WHITE);
-      UIManager.put("List.selectionBackground", new Color(80, 80, 90));
+      UIManager.put("List.selectionBackground", new Color(50, 50, 60));
       UIManager.put("List.selectionForeground", Color.WHITE);
 
-      // ComboBox dark theme
-      UIManager.put("ComboBox.background", new Color(70, 70, 80));
+      UIManager.put("Table.background", new Color(60, 60, 65));
+      UIManager.put("Table.foreground", Color.WHITE);
+      UIManager.put("Table.selectionBackground", new Color(50, 50, 60));
+      UIManager.put("Table.selectionForeground", Color.WHITE);
+
+      UIManager.put("Tree.background", new Color(60, 60, 65));
+      UIManager.put("Tree.foreground", Color.WHITE);
+      UIManager.put("Tree.selectionBackground", new Color(50, 50, 60));
+      UIManager.put("Tree.selectionForeground", Color.WHITE);
+
+      // === COMBO BOX (dropdown) – DARK ===
+      UIManager.put("ComboBox.background", new Color(50, 50, 58));
       UIManager.put("ComboBox.foreground", Color.WHITE);
-      UIManager.put("ComboBox.selectionBackground", new Color(90, 90, 100));
+      UIManager.put("ComboBox.selectionBackground", new Color(60, 60, 70));
       UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-      UIManager.put("ComboBox.buttonBackground", new Color(70, 70, 80));
-      UIManager.put("ComboBox.listBackground", new Color(60, 60, 65));
+      UIManager.put("ComboBox.buttonBackground", new Color(50, 50, 58));
+      UIManager.put("ComboBox.buttonForeground", Color.WHITE);
+      UIManager.put("ComboBox.buttonDarkShadow", new Color(35, 35, 40));
+      UIManager.put("ComboBox.buttonHighlight", new Color(35, 35, 40));
+      UIManager.put("ComboBox.buttonShadow", new Color(35, 35, 40));
+      UIManager.put("ComboBox.listBackground", new Color(45, 45, 52));
       UIManager.put("ComboBox.listForeground", Color.WHITE);
+      UIManager.put("ComboBox.border", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
+      UIManager.put("ComboBox.editorBorder", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
+
+      // Popup menu border (used by combo box dropdown)
+      UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
+
+      // Global combo box renderer – safety net
+      UIManager.getLookAndFeelDefaults().put("ComboBox.renderer", new DefaultListCellRenderer() {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                      int index, boolean isSelected, boolean cellHasFocus) {
+          Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+          c.setForeground(Color.WHITE);
+          c.setBackground(isSelected ? new Color(60, 60, 70) : new Color(45, 45, 52));
+          return c;
+        }
+      });
 
     } catch (ClassNotFoundException | InstantiationException |
              IllegalAccessException | UnsupportedLookAndFeelException e) {
-      // If any look and feel fails, fall back to Metal
       try {
         UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
       } catch (Exception ex) {
         System.err.println("Could not set any look and feel: " + ex.getMessage());
       }
-      // Fallback to basic dark colors
       getContentPane().setBackground(new Color(45, 45, 50));
     }
   }
@@ -176,7 +202,6 @@ public class FretboardViewer extends JFrame implements ActionListener {
     button.setOpaque(true);
     button.setContentAreaFilled(true);
 
-    // Simple hover effect
     button.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseEntered(java.awt.event.MouseEvent evt) {
         button.setBackground(new Color(90, 90, 100));
@@ -190,20 +215,14 @@ public class FretboardViewer extends JFrame implements ActionListener {
     });
   }
 
+  @Override
   public void actionPerformed(ActionEvent e) {
     if (e.getSource() == resetButton) {
       fretboardPanel.resetAllHits();
       fretboardPanel.repaint();
     } else if (e.getSource() == toggleButton) {
       fretboardPanel.toggleNoteSystem();
-
-      if (fretboardPanel.isUsingSharps()) {
-        toggleButton.setText("Switch to Flats");
-      } else {
-        toggleButton.setText("Switch to Sharps");
-      }
-
-      // Keep button size consistent
+      toggleButton.setText(fretboardPanel.isUsingSharps() ? "Switch to Flats" : "Switch to Sharps");
       toggleButton.setPreferredSize(new Dimension(150, 30));
       fretboardPanel.repaint();
     } else if (e.getSource() == exportButton) {
@@ -211,53 +230,48 @@ public class FretboardViewer extends JFrame implements ActionListener {
     }
   }
 
+  // === EXPORT SCREENSHOT – USES NATIVE DARK FILE DIALOG ON MAC ===
   private void exportScreenshot() {
-    // Simple dialog for save location
-    JFileChooser fileChooser = new JFileChooser();
+    String os = System.getProperty("os.name").toLowerCase();
+    File selectedFile = null;
 
-    // Set simple default filename
-    String defaultName = "Fretboard";
-    fileChooser.setSelectedFile(new File(defaultName + ".png"));
+    if (os.contains("mac")) {
+      // --- macOS: use AWT FileDialog (native, dark when app is in dark mode) ---
+      FileDialog fileDialog = new FileDialog(this, "Save Screenshot", FileDialog.SAVE);
+      fileDialog.setFile("Fretboard.png");
+      fileDialog.setVisible(true);
 
-    // Filter for PNG files only
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Images", "png");
-    fileChooser.setFileFilter(filter);
-
-    // Try to select just the filename (without extension) after dialog is shown
-    // We need to do this after the dialog is visible
-    SwingUtilities.invokeLater(() -> {
-      try {
-        // Try to find the filename text field in the file chooser
-        selectFilenameWithoutExtension(fileChooser);
-      } catch (Exception e) {
-        // If it fails, no problem - just continue
+      String directory = fileDialog.getDirectory();
+      String filename = fileDialog.getFile();
+      if (directory != null && filename != null) {
+        selectedFile = new File(directory, filename);
+        // Ensure .png extension
+        if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
+          selectedFile = new File(selectedFile.getAbsolutePath() + ".png");
+        }
       }
-    });
+    } else {
+      // --- Windows/Linux: use Swing JFileChooser with basic darkening ---
+      JFileChooser fileChooser = new JFileChooser();
+      fileChooser.setSelectedFile(new File("Fretboard.png"));
+      fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
 
-    // Show save dialog
-    int result = fileChooser.showSaveDialog(this);
-
-    if (result == JFileChooser.APPROVE_OPTION) {
-      File file = fileChooser.getSelectedFile();
-
-      // Ensure file has .png extension
-      if (!file.getName().toLowerCase().endsWith(".png")) {
-        file = new File(file.getAbsolutePath() + ".png");
+      if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+        selectedFile = fileChooser.getSelectedFile();
+        if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
+          selectedFile = new File(selectedFile.getAbsolutePath() + ".png");
+        }
       }
+    }
 
+    if (selectedFile != null) {
       try {
-        // Get screenshot from FretboardPanel
         BufferedImage screenshot = fretboardPanel.getFretboardScreenshot();
-
-        // Save as PNG
-        ImageIO.write(screenshot, "PNG", file);
-
-        // Show simple confirmation
+        ImageIO.write(screenshot, "PNG", selectedFile);
         JOptionPane.showMessageDialog(this,
-                "Screenshot saved!\n" + file.getName(),
+                "Screenshot saved!\n" + selectedFile.getName(),
                 "Export Complete",
                 JOptionPane.INFORMATION_MESSAGE);
-
       } catch (Exception ex) {
         JOptionPane.showMessageDialog(this,
                 "Error saving: " + ex.getMessage(),
@@ -267,74 +281,21 @@ public class FretboardViewer extends JFrame implements ActionListener {
     }
   }
 
-  // Helper method to select filename without extension
-  private void selectFilenameWithoutExtension(Container container) {
-    for (Component comp : container.getComponents()) {
-      if (comp instanceof JTextField) {
-        JTextField textField = (JTextField) comp;
-        String text = textField.getText();
-
-        // Find where .png starts (or . if any extension)
-        int dotIndex = text.lastIndexOf('.');
-        if (dotIndex > 0) {
-          // Select text up to the dot (without extension)
-          textField.setSelectionStart(0);
-          textField.setSelectionEnd(dotIndex);
-          textField.requestFocus();
-          break;
-        }
-      } else if (comp instanceof Container) {
-        selectFilenameWithoutExtension((Container) comp);
-      }
-    }
-  }
-
-  // Helper method to find and enable text selection in the JFileChooser
-  private void enableTextFieldSelection(JFileChooser fileChooser) {
-    // Try to find the text field component in the file chooser
-    findAndEnableTextFields(fileChooser);
-  }
-
-  private void findAndEnableTextFields(java.awt.Container container) {
-    for (java.awt.Component comp : container.getComponents()) {
-      if (comp instanceof JTextField) {
-        JTextField textField = (JTextField) comp;
-        // Enable text selection
-        textField.setSelectionStart(0);
-        textField.setSelectionEnd(textField.getText().length());
-        // Make sure it's editable and focusable
-        textField.setEditable(true);
-        textField.setFocusable(true);
-        // Enable copy/paste
-        textField.putClientProperty("JTextField.variant", "search");
-      } else if (comp instanceof java.awt.Container) {
-        findAndEnableTextFields((java.awt.Container) comp);
-      }
-    }
-  }
-
   public static void main(String[] args) {
-    // Enable platform-specific dark mode
     String os = System.getProperty("os.name").toLowerCase();
-
     if (os.contains("mac")) {
-      // macOS specific dark mode
       System.setProperty("apple.awt.application.appearance", "NSAppearanceNameDarkAqua");
       System.setProperty("apple.laf.useScreenMenuBar", "true");
+      // Do NOT set apple.awt.fileDialog – we want the native dark dialog
     } else if (os.contains("windows")) {
-      // Windows: try to force dark mode
       System.setProperty("sun.awt.noerasebackground", "true");
     }
 
-    // Create and show the window on the Event Dispatch Thread
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        try {
-          FretboardViewer fv = new FretboardViewer();
-          fv.setVisible(true);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+    SwingUtilities.invokeLater(() -> {
+      try {
+        new FretboardViewer().setVisible(true);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     });
   }
