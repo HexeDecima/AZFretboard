@@ -7,10 +7,10 @@ import java.util.Hashtable;
 
 public class FretboardPanel extends JPanel implements MouseListener {
   // Configuration
-  private static final int NUM_STRINGS = 6;
-  private static final int NUM_FRETS = 25;
-  private static final int PANEL_WIDTH = 1200;
-  private static final int PANEL_HEIGHT = 307;
+  private int numStrings = 6;                     // can be changed later
+  private static final int NUM_FRETS = 25;        // fixed number of frets
+  private static final int PANEL_WIDTH = 1200;    // fixed width
+  private int panelHeight;                        // calculated dynamically
   private FretsCalculator fretsCalculator;
 
   // Background generator
@@ -20,12 +20,12 @@ public class FretboardPanel extends JPanel implements MouseListener {
   // Original coordinates (same as before)
 //  private int[] originalX = {6, 70, 132, 190, 246, 301, 357, 410, 462, 513, 564, 612, 660, 708, 755, 799, 843, 886, 926, 967, 1007, 1045, 1082, 1119, 1154};
 //  private int[] originalWidth = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25, 23, 23, 22, 22, 21, 21, 21, 20, 21, 21, 20, 20, 20, 20, 20};
-  private int[] originalStringY = {12, 52, 90, 129, 169, 208};
+//  private int[] originalStringY = {12, 52, 90, 129, 169, 208};
 
   // Arrays for positions
   private int[] fretX = new int[NUM_FRETS];
   private int[] fretWidth = new int[NUM_FRETS];
-  private int[] stringY = new int[NUM_STRINGS];
+  private int[] stringY;    // will be created in initializeStringPositions()
 
   // Rectangle array
   private Rectangle[] rects;
@@ -38,7 +38,9 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
   public FretboardPanel() {
     // Set preferred size for the panel
-    setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+    setPreferredSize(new Dimension(PANEL_WIDTH, panelHeight));
+    initializeStringPositions();
+    createRectangles();
 
     // Set dark background for the panel
     setBackground(new Color(45, 45, 50));
@@ -50,6 +52,9 @@ public class FretboardPanel extends JPanel implements MouseListener {
     // Initialize background generator
     backgroundGenerator = new BackgroundGenerator(fretsCalculator);
     regenerateBackground();
+
+    // Calculate initial panel height
+    panelHeight = backgroundGenerator.calculateFretboardHeight(numStrings);
 
     // Get calculated positions from the calculator
     int[] redRectLeft = fretsCalculator.getRedRectLeftEdges();
@@ -71,22 +76,61 @@ public class FretboardPanel extends JPanel implements MouseListener {
     addMouseListener(this);
   }
 
+  @Override
+  public Dimension getPreferredSize() {
+    return new Dimension(PANEL_WIDTH, panelHeight);
+  }
+
   private void regenerateBackground() {
-    // Pass the fretsCalculator to BackgroundGenerator
     backgroundGenerator = new BackgroundGenerator(fretsCalculator);
-    background = backgroundGenerator.generateFretboard(NUM_STRINGS, NUM_FRETS, PANEL_WIDTH, PANEL_HEIGHT);
+    int height = backgroundGenerator.calculateFretboardHeight(numStrings);
+    this.panelHeight = height;
+    // DEBUG: print values
+    System.out.println("numStrings: " + numStrings);
+    System.out.println("panelHeight: " + panelHeight);
+    int lastStringY = stringY[numStrings - 1];
+    int bottomY = lastStringY + 20; // rectangle bottom
+    System.out.println("lastStringY: " + lastStringY + ", bottomY: " + bottomY + ", margin: " + (panelHeight - bottomY));
+
+    background = backgroundGenerator.generateFretboard(numStrings, NUM_FRETS, PANEL_WIDTH, height);
+    revalidate();
+    repaint();
+  }
+
+  public void setNumStrings(int strings) {
+    this.numStrings = strings;
+
+    // Recalculate string positions and rectangles
+    initializeStringPositions();
+    createRectangles();
+
+    // Reset hit states for new rectangles
+    hits.clear();
+    for (Rectangle r : rects) {
+      hits.put(r.toString(), false);
+    }
+
+    // Regenerate background with new string count
+    regenerateBackground();
+
+    // Update panel size
+    revalidate();
+    repaint();
   }
 
   private void initializeStringPositions() {
-    for(int i = 0; i < NUM_STRINGS; i++) {
-      stringY[i] = originalStringY[i];
+    stringY = new int[numStrings];
+    int topMargin = 20;
+    int spacing = 40;
+    for (int i = 0; i < numStrings; i++) {
+      stringY[i] = topMargin + (i * spacing); // rectangle top
     }
   }
 
   private void createRectangles() {
-    rects = new Rectangle[NUM_STRINGS * NUM_FRETS];
+    rects = new Rectangle[numStrings * NUM_FRETS];
 
-    for(int string = 0; string < NUM_STRINGS; string++) {
+    for(int string = 0; string < numStrings; string++) {
       for(int fret = 0; fret < NUM_FRETS; fret++) {
         int index = string * NUM_FRETS + fret;
         rects[index] = new Rectangle(

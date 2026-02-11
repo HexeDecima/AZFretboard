@@ -34,7 +34,8 @@ public class BackgroundGenerator {
 //            20, 20, 20, 20, 20};
     private int[] fretXArray;
     private int[] fretWidthArray;
-    private static final int[] STRING_Y_6 = {12, 52, 90, 129, 169, 208};
+//    private static final int[] STRING_Y_6 = {12, 52, 90, 129, 169, 208};
+    private static final int[] STRING_Y_10 = {12, 42, 72, 102, 132, 162, 192, 222, 252, 282};
     private static final int RECT_HEIGHT = 20;
     private static final int FRET_THICKNESS = 6;
     private FretsCalculator fretsCalculator;
@@ -83,6 +84,14 @@ public class BackgroundGenerator {
 
         g2d.dispose();
         return finalImage;
+    }
+
+    public int calculateFretboardHeight(int numStrings) {
+        int topMargin = 20;        // from top edge to first rectangle top
+        int rectHeight = 20;       // height of each red rectangle
+        int spacing = 40;         // between rectangle tops
+        int bottomMargin = 20;    // from last rectangle bottom to panel edge
+        return topMargin + (numStrings - 1) * spacing + rectHeight + bottomMargin;
     }
 
     private BufferedImage applyBlur(BufferedImage image, float blurRadius) {
@@ -176,27 +185,22 @@ public class BackgroundGenerator {
 
     private int[] calculateStringPositions(int numStrings) {
         int[] positions = new int[numStrings];
-
-        if (numStrings == 6) {
-            for (int i = 0; i < numStrings; i++) {
-                positions[i] = STRING_Y_6[i] + RECT_HEIGHT / 2;
-            }
-        } else {
-            int firstY = STRING_Y_6[0] + RECT_HEIGHT / 2;
-            int lastY = STRING_Y_6[5] + RECT_HEIGHT / 2;
-
-            for (int i = 0; i < numStrings; i++) {
-                positions[i] = firstY + (lastY - firstY) * i / (numStrings - 1);
-            }
+        int topMargin = 20;
+        int spacing = 40;
+        int rectHeight = 20;
+        for (int i = 0; i < numStrings; i++) {
+            positions[i] = topMargin + (i * spacing) + rectHeight / 2; // center = top + 10
         }
-
         return positions;
     }
 
     private int[] calculateStringHeights(int numStrings) {
         int[] heights = new int[numStrings];
+        // Very subtle: from 2px to 4px for 10 strings
+        float increment = 2.0f / Math.max(1, numStrings - 1);
+
         for (int i = 0; i < numStrings; i++) {
-            heights[i] = 2 + (i * 6 / Math.max(1, numStrings - 1));
+            heights[i] = 2 + Math.round(i * increment);
         }
         return heights;
     }
@@ -274,6 +278,7 @@ public class BackgroundGenerator {
                     drawPearlDot(g2d, redRectCenter, topY, dotDiameter);
                     drawPearlDot(g2d, redRectCenter, bottomY, dotDiameter);
                 } else {
+                    // Always vertical center of fretboard
                     int middleY = (stringY[0] + stringY[numStrings - 1]) / 2;
                     drawPearlDot(g2d, redRectCenter, middleY, dotDiameter);
                 }
@@ -293,6 +298,17 @@ public class BackgroundGenerator {
         );
         g2d.setPaint(pearlGradient);
         g2d.fillOval(x - diameter/2 + 1, y - diameter/2 + 1, diameter - 2, diameter - 2);
+    }
+
+    private void drawHighlightedRedRect(Graphics2D g2d, int fret, int stringY, Color highlightColor) {
+        if (fret < 0 || fret >= fretXArray.length) return;
+
+        int x = fretXArray[fret];
+        int width = fretWidthArray[fret];
+        int y = stringY - RECT_HEIGHT/2;
+
+        g2d.setColor(highlightColor);
+        g2d.fillRect(x, y, width, RECT_HEIGHT);
     }
 
 }

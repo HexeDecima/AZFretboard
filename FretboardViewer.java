@@ -3,14 +3,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -18,6 +17,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JComboBox;
 
 public class FretboardViewer extends JFrame implements ActionListener {
 
@@ -29,41 +29,64 @@ public class FretboardViewer extends JFrame implements ActionListener {
   FlowLayout controlPanelFlow = new FlowLayout(FlowLayout.LEFT, 10, 5);
 
   public FretboardViewer() {
-    // Set dark theme for the entire application
     setDarkTheme();
-
     setTitle("AZ Fretboard");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setSize(1200, 307);
-    setResizable(false);
-    setLocationRelativeTo(null);
 
     resetButton.addActionListener(this);
     toggleButton.addActionListener(this);
     exportButton.addActionListener(this);
 
-    // Set button sizes to be consistent
     Dimension buttonSize = new Dimension(150, 30);
     resetButton.setPreferredSize(buttonSize);
     toggleButton.setPreferredSize(buttonSize);
     exportButton.setPreferredSize(buttonSize);
 
-    // Style buttons
     styleButton(resetButton);
     styleButton(toggleButton);
     styleButton(exportButton);
 
-    // Set dark colors for control panel
     controlPanel.setBackground(new Color(45, 45, 50));
     controlPanel.setLayout(controlPanelFlow);
     controlPanel.add(resetButton);
     controlPanel.add(toggleButton);
     controlPanel.add(exportButton);
 
+    // Strings dropdown
+    JLabel stringsLabel = new JLabel("Strings:");
+    stringsLabel.setForeground(Color.WHITE);
+    controlPanel.add(stringsLabel);
+
+    String[] stringOptions = {"4", "5", "6", "7", "8", "9", "10"};
+    JComboBox<String> stringCombo = new JComboBox<>(stringOptions);
+    stringCombo.setForeground(Color.WHITE);
+    stringCombo.setBackground(new Color(70, 70, 80));
+    stringCombo.setSelectedItem("6");
+    stringCombo.addActionListener(e -> {
+      int newStrings = Integer.parseInt((String) stringCombo.getSelectedItem());
+      fretboardPanel.setNumStrings(newStrings);
+      pack();
+      setSize(1200, getHeight());
+      setLocationRelativeTo(null);
+    });
+    controlPanel.add(stringCombo);
+
     add(controlPanel, BorderLayout.PAGE_START);
     add(fretboardPanel, BorderLayout.CENTER);
 
-    // Set window background
+    // Force layout to calculate preferred sizes
+    controlPanel.revalidate();
+    fretboardPanel.revalidate();
+
+    // Pack the frame to fit its contents' preferred sizes, including window decorations
+    pack();
+
+    // Now set the width to 1200, keep the height calculated by pack()
+    setSize(1200, getHeight());
+
+    setResizable(false);
+    setLocationRelativeTo(null);
+
     getContentPane().setBackground(new Color(45, 45, 50));
   }
 
@@ -119,6 +142,15 @@ public class FretboardViewer extends JFrame implements ActionListener {
       UIManager.put("List.foreground", Color.WHITE);
       UIManager.put("List.selectionBackground", new Color(80, 80, 90));
       UIManager.put("List.selectionForeground", Color.WHITE);
+
+      // ComboBox dark theme
+      UIManager.put("ComboBox.background", new Color(70, 70, 80));
+      UIManager.put("ComboBox.foreground", Color.WHITE);
+      UIManager.put("ComboBox.selectionBackground", new Color(90, 90, 100));
+      UIManager.put("ComboBox.selectionForeground", Color.WHITE);
+      UIManager.put("ComboBox.buttonBackground", new Color(70, 70, 80));
+      UIManager.put("ComboBox.listBackground", new Color(60, 60, 65));
+      UIManager.put("ComboBox.listForeground", Color.WHITE);
 
     } catch (ClassNotFoundException | InstantiationException |
              IllegalAccessException | UnsupportedLookAndFeelException e) {
