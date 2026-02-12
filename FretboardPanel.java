@@ -121,12 +121,6 @@ public class FretboardPanel extends JPanel implements MouseListener {
     regenerateBackground();
     updateTuningButtonTexts();
 
-    // Reposition dropdowns vertically after string count change
-    for (int i = 0; i < numStrings; i++) {
-      tuningButtons[i].setBounds(2, stringY[i] - DROPDOWN_HEIGHT / 2,
-              DROPDOWN_WIDTH, DROPDOWN_HEIGHT);
-    }
-
     // Update panel size
     revalidate();
     repaint();
@@ -142,6 +136,17 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
   public int getDotsMode() {
     return dotsMode;
+  }
+
+  public void loadPreset(int numStrings, int[] tunings, int dotsMode) {
+    // 1. Update tunings in NoteCalculator
+    for (int i = 0; i < tunings.length; i++) {
+      noteCalc.setTuning(i, tunings[i]);
+    }
+    // 2. Set dots mode (updates background)
+    setDotsMode(dotsMode);
+    // 3. Set number of strings (recreates tuning buttons, etc.)
+    setNumStrings(numStrings);
   }
 
   private void initializeStringPositions() {
@@ -178,18 +183,27 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
     for (int i = 0; i < numStrings; i++) {
       String openNote = noteCalc.getNoteName(i, 0);
-      JButton btn = new JButton(openNote);
+      // --- CUSTOM BUTTON WITH FORCED DARK BACKGROUND ---
+      JButton btn = new JButton(openNote) {
+        @Override
+        protected void paintComponent(Graphics g) {
+          // Force dark background
+          g.setColor(new Color(50, 50, 58));
+          g.fillRect(0, 0, getWidth(), getHeight());
+          // Let the button paint its text and border normally
+          super.paintComponent(g);
+        }
+      };
 
       // Position: left edge, vertically centered on string
       int x = 2;
-      int y = stringY[i];   // button top = rectangle top → button center = string axis
+      int y = stringY[i];
       btn.setBounds(x, y, DROPDOWN_WIDTH, DROPDOWN_HEIGHT);
 
-      // Dark button style
-      btn.setBackground(new Color(50, 50, 58));
+      // Dark button style – now using our forced painting
       btn.setForeground(Color.WHITE);
-      btn.setOpaque(true);
-      btn.setContentAreaFilled(true);
+      btn.setOpaque(false);          // we paint background ourselves
+      btn.setContentAreaFilled(false); // no default LAF painting
       btn.setFocusPainted(false);
       btn.setBorder(BorderFactory.createLineBorder(new Color(70, 70, 80), 1));
       btn.setFont(btn.getFont().deriveFont(11f));

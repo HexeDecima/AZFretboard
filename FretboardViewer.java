@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.BorderFactory;
 
+
 public class FretboardViewer extends JFrame implements ActionListener {
 
   FretboardPanel fretboardPanel = new FretboardPanel();
@@ -17,7 +18,26 @@ public class FretboardViewer extends JFrame implements ActionListener {
   JButton resetButton = new JButton("Reset");
   JButton toggleButton = new JButton("Sharps/Flats");
   JButton exportButton = new JButton("Export Screenshot");
+  private JComboBox<String> stringCombo;
+  private JComboBox<String> dotsCombo;
   FlowLayout controlPanelFlow = new FlowLayout(FlowLayout.LEFT, 10, 5);
+
+  // Stores all presets loaded from the CSV file
+  private java.util.ArrayList<Preset> presets = new java.util.ArrayList<>();
+
+  // Inner class that holds one preset (name, string count, tunings, dot style)
+  private static class Preset {
+    String name;
+    int numStrings;
+    int[] tunings;
+    int dotsMode;
+    Preset(String name, int numStrings, int[] tunings, int dotsMode) {
+      this.name = name;
+      this.numStrings = numStrings;
+      this.tunings = tunings;
+      this.dotsMode = dotsMode;
+    }
+  }
 
   public FretboardViewer() {
     setDarkTheme();
@@ -49,7 +69,7 @@ public class FretboardViewer extends JFrame implements ActionListener {
     controlPanel.add(stringsLabel);
 
     String[] stringOptions = {"4", "5", "6", "7", "8", "9", "10"};
-    JComboBox<String> stringCombo = new JComboBox<>(stringOptions);
+    stringCombo = new JComboBox<>(stringOptions);
     stringCombo.setSelectedItem("6");
 
     // Force‑white renderer for this combo box
@@ -78,7 +98,7 @@ public class FretboardViewer extends JFrame implements ActionListener {
     controlPanel.add(dotsLabel);
 
     String[] dotsOptions = {"Guitar/Bass", "Mandolin/Banjo/Ukulele", "Off"};
-    JComboBox<String> dotsCombo = new JComboBox<>(dotsOptions);
+    dotsCombo = new JComboBox<>(dotsOptions);
     dotsCombo.setForeground(Color.WHITE);
     dotsCombo.setBackground(new Color(50, 50, 58));
     dotsCombo.setSelectedIndex(0);   // Guitar/Bass
@@ -100,12 +120,72 @@ public class FretboardViewer extends JFrame implements ActionListener {
       fretboardPanel.setDotsMode(selected);   // 0 = Guitar, 1 = Mandolin, 2 = Off
     });
     controlPanel.add(dotsCombo);
+    // --- Presets dropdown ---
+    loadPresetsFromCSV(); // read the CSV file and fill the presets list
+
+    JLabel presetsLabel = new JLabel("Presets:");
+    presetsLabel.setForeground(Color.WHITE);
+    controlPanel.add(presetsLabel);
+
+// Create array of preset names
+    String[] presetNames = new String[presets.size()];
+    for (int i = 0; i < presets.size(); i++) {
+      presetNames[i] = presets.get(i).name;
+    }
+
+    JComboBox<String> presetsCombo = new JComboBox<>(presetNames);
+    presetsCombo.setForeground(Color.WHITE);
+    presetsCombo.setBackground(new Color(50, 50, 58));
+
+// Dark renderer
+    presetsCombo.setRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                    int index, boolean isSelected, boolean cellHasFocus) {
+        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        c.setForeground(Color.WHITE);
+        c.setBackground(isSelected ? new Color(60, 60, 70) : new Color(45, 45, 52));
+        return c;
+      }
+    });
+
+    // Action listener – apply the selected preset
+    presetsCombo.addActionListener(e -> {
+      int idx = presetsCombo.getSelectedIndex();
+      if (idx < 0 || idx >= presets.size()) return;
+      Preset p = presets.get(idx);
+
+      fretboardPanel.loadPreset(p.numStrings, p.tunings, p.dotsMode);
+
+      // Update Strings dropdown without firing its listener
+      ActionListener[] stringListeners = stringCombo.getActionListeners();
+      for (ActionListener al : stringListeners) stringCombo.removeActionListener(al);
+      stringCombo.setSelectedItem(String.valueOf(p.numStrings));
+      for (ActionListener al : stringListeners) stringCombo.addActionListener(al);
+
+      // Update Dots dropdown without firing its listener
+      ActionListener[] dotsListeners = dotsCombo.getActionListeners();
+      for (ActionListener al : dotsListeners) dotsCombo.removeActionListener(al);
+      dotsCombo.setSelectedIndex(p.dotsMode);
+      for (ActionListener al : dotsListeners) dotsCombo.addActionListener(al);
+
+      pack();
+      setSize(1200, getHeight());
+    });
+
+    controlPanel.add(presetsCombo);
 
     add(controlPanel, BorderLayout.PAGE_START);
     add(fretboardPanel, BorderLayout.CENTER);
 
     controlPanel.revalidate();
     fretboardPanel.revalidate();
+
+    loadPresetsFromCSV(); // read the CSV file and fill the presets list
+    System.out.println("Number of presets loaded: " + presets.size());
+    if (presets.isEmpty()) {
+      System.out.println("PRESETS LIST IS EMPTY – no dropdown items!");
+    }
 
     pack();
     setSize(1200, getHeight());
@@ -366,6 +446,99 @@ public class FretboardViewer extends JFrame implements ActionListener {
     }
   }
 
+  // Convert a note letter (A, B, C, D, E, F, G) to its chromatic index (C=0, D=2, E=4, F=5, G=7, A=9, B=11)
+  private static int noteLetterToIndex(char c) {
+    switch (c) {
+      case 'C': return 0;
+      case 'D': return 2;
+      case 'E': return 4;
+      case 'F': return 5;
+      case 'G': return 7;
+      case 'A': return 9;
+      case 'B': return 11;
+      default: return 0; // should never happen
+    }
+  }
+
+  // Read the CSV file and fill the presets list
+  private void loadPresetsFromCSV() {
+    System.out.println("Working directory: " + new java.io.File(".").getAbsolutePath());
+
+    try (java.io.BufferedReader br = new java.io.BufferedReader(
+            new java.io.FileReader("AZFretboardTuningPresets.csv"))) {
+
+      // Read and print header
+      String header = br.readLine();
+      System.out.println("Header: " + header);
+
+      String line;
+      int lineNumber = 1;
+      while ((line = br.readLine()) != null) {
+        lineNumber++;
+        line = line.trim();
+        if (line.isEmpty()) continue;
+
+        System.out.println("\n--- Line " + lineNumber + " ---");
+        System.out.println("Raw: " + line);
+
+        String[] parts = line.split(";");
+        System.out.println("Split parts: " + java.util.Arrays.toString(parts));
+        System.out.println("parts.length = " + parts.length);
+
+        if (parts.length < 4) {
+          System.out.println("  ⚠ Skipping: less than 4 parts");
+          continue;
+        }
+
+        String name = parts[0].trim();
+        String numStringsStr = parts[1].trim();
+        String tuningStr = parts[2].trim();
+        String dotsStr = parts[3].trim();
+
+        System.out.println("  name: " + name);
+        System.out.println("  numStrings: " + numStringsStr);
+        System.out.println("  tuningStr: " + tuningStr);
+        System.out.println("  dotsStr: " + dotsStr);
+
+        try {
+          int numStrings = Integer.parseInt(numStringsStr);
+
+          // Convert tuning string to chromatic indices
+          int[] tunings = new int[tuningStr.length()];
+          for (int i = 0; i < tuningStr.length(); i++) {
+            tunings[i] = noteLetterToIndex(tuningStr.charAt(i));
+          }
+          System.out.println("  tunings array: " + java.util.Arrays.toString(tunings));
+
+          // Convert dots text to mode (0,1,2)
+          int dotsMode;
+          if (dotsStr.equals("Guitar/Bass")) {
+            dotsMode = 0;
+          } else if (dotsStr.equals("Mandolin/Banjo/Ukulele")) {
+            dotsMode = 1;
+          } else {
+            dotsMode = 2;
+          }
+          System.out.println("  dotsMode: " + dotsMode);
+
+          // Add preset to list
+          presets.add(new Preset(name, numStrings, tunings, dotsMode));
+          System.out.println("  ✅ Added preset: " + name);
+
+        } catch (NumberFormatException e) {
+          System.out.println("  ❌ NumberFormatException: " + e.getMessage());
+        } catch (Exception e) {
+          System.out.println("  ❌ Exception: " + e.getMessage());
+        }
+      }
+
+      System.out.println("\n=== Total presets loaded: " + presets.size() + " ===");
+
+    } catch (Exception e) {
+      System.out.println("CAUGHT EXCEPTION: " + e.getMessage());
+      System.err.println("Could not load presets file: " + e.getMessage());
+    }
+  }
   // ------------------------------------------------------------------------
   //  MAIN
   // ------------------------------------------------------------------------
