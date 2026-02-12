@@ -127,6 +127,15 @@ public class FretboardViewer extends JFrame implements ActionListener {
       UIManager.put("nimbusBlueGrey", new Color(35, 35, 40));
       UIManager.put("nimbusBorder", new Color(30, 30, 35));
 
+      // === MENU / POPUP MENU – DARK THEME (prevents Aqua crash) ===
+      UIManager.put("MenuItem.background", new Color(45, 45, 52));
+      UIManager.put("MenuItem.foreground", Color.WHITE);
+      UIManager.put("MenuItem.selectionBackground", new Color(60, 60, 70));
+      UIManager.put("MenuItem.selectionForeground", Color.WHITE);
+      UIManager.put("PopupMenu.background", new Color(45, 45, 52));
+      UIManager.put("PopupMenu.foreground", Color.WHITE);
+      UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
+
       UIManager.put("Panel.background", new Color(45, 45, 50));
       UIManager.put("OptionPane.background", new Color(45, 45, 50));
       UIManager.put("OptionPane.foreground", Color.WHITE);
@@ -157,21 +166,6 @@ public class FretboardViewer extends JFrame implements ActionListener {
       UIManager.put("Tree.foreground", Color.WHITE);
       UIManager.put("Tree.selectionBackground", new Color(50, 50, 60));
       UIManager.put("Tree.selectionForeground", Color.WHITE);
-
-      // === COMBO BOX – FULLY DARK ===
-      UIManager.put("ComboBox.background", new Color(50, 50, 58));
-      UIManager.put("ComboBox.foreground", Color.WHITE);
-      UIManager.put("ComboBox.selectionBackground", new Color(60, 60, 70));
-      UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-      UIManager.put("ComboBox.buttonBackground", new Color(50, 50, 58));
-      UIManager.put("ComboBox.buttonForeground", Color.WHITE);
-      UIManager.put("ComboBox.buttonDarkShadow", new Color(35, 35, 40));
-      UIManager.put("ComboBox.buttonHighlight", new Color(35, 35, 40));
-      UIManager.put("ComboBox.buttonShadow", new Color(35, 35, 40));
-      UIManager.put("ComboBox.listBackground", new Color(45, 45, 52));
-      UIManager.put("ComboBox.listForeground", Color.WHITE);
-      UIManager.put("ComboBox.border", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
-      UIManager.put("ComboBox.editorBorder", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
 
       UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
 

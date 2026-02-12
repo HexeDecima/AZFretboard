@@ -12,6 +12,9 @@ public class FretboardPanel extends JPanel implements MouseListener {
   private static final int PANEL_WIDTH = 1200;    // fixed width
   private int panelHeight;                        // calculated dynamically
   private FretsCalculator fretsCalculator;
+  private JButton[] tuningButtons;
+  private static final int DROPDOWN_WIDTH = 24;      // narrow – fits before redRect0
+  private static final int DROPDOWN_HEIGHT = 20;
 
   // Background generator
   private BackgroundGenerator backgroundGenerator;
@@ -39,7 +42,9 @@ public class FretboardPanel extends JPanel implements MouseListener {
   public FretboardPanel() {
     // Set preferred size for the panel
     setPreferredSize(new Dimension(PANEL_WIDTH, panelHeight));
+    setLayout(null);   // allows exact placement of dropdowns
     initializeStringPositions();
+    createTuningButtons();
     createRectangles();
 
     // Set dark background for the panel
@@ -102,6 +107,7 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
     // Recalculate string positions and rectangles
     initializeStringPositions();
+    createTuningButtons();
     createRectangles();
 
     // Reset hit states for new rectangles
@@ -112,6 +118,13 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
     // Regenerate background with new string count
     regenerateBackground();
+    updateTuningButtonTexts();
+
+    // Reposition dropdowns vertically after string count change
+    for (int i = 0; i < numStrings; i++) {
+      tuningButtons[i].setBounds(2, stringY[i] - DROPDOWN_HEIGHT / 2,
+              DROPDOWN_WIDTH, DROPDOWN_HEIGHT);
+    }
 
     // Update panel size
     revalidate();
@@ -141,6 +154,92 @@ public class FretboardPanel extends JPanel implements MouseListener {
         );
       }
     }
+  }
+
+  private void createTuningButtons() {
+    if (tuningButtons != null) {
+      for (JButton btn : tuningButtons) remove(btn);
+    }
+
+    tuningButtons = new JButton[numStrings];
+
+    for (int i = 0; i < numStrings; i++) {
+      String openNote = noteCalc.getNoteName(i, 0);
+      JButton btn = new JButton(openNote);
+
+      // Position: left edge, vertically centered on string
+      int x = 2;
+      int y = stringY[i];   // button top = rectangle top → button center = string axis
+      btn.setBounds(x, y, DROPDOWN_WIDTH, DROPDOWN_HEIGHT);
+
+      // Dark button style
+      btn.setBackground(new Color(50, 50, 58));
+      btn.setForeground(Color.WHITE);
+      btn.setOpaque(true);
+      btn.setContentAreaFilled(true);
+      btn.setFocusPainted(false);
+      btn.setBorder(BorderFactory.createLineBorder(new Color(70, 70, 80), 1));
+      btn.setFont(btn.getFont().deriveFont(11f));
+
+      // --- CUSTOM DARK POPUP MENU (NO AQUA) ---
+      JPopupMenu popup = new JPopupMenu();
+      popup.setBackground(new Color(45, 45, 52));
+      popup.setBorder(BorderFactory.createLineBorder(new Color(40, 40, 45), 1));
+
+      for (int noteIdx = 0; noteIdx < NoteCalculator.DROPDOWN_NOTES.length; noteIdx++) {
+        String noteName = NoteCalculator.DROPDOWN_NOTES[noteIdx];
+
+        // Custom JMenuItem that paints itself dark
+        JMenuItem item = new JMenuItem(noteName) {
+          @Override
+          protected void paintComponent(Graphics g) {
+            if (isArmed() || isSelected()) {
+              g.setColor(new Color(60, 60, 70));
+            } else {
+              g.setColor(new Color(45, 45, 52));
+            }
+            g.fillRect(0, 0, getWidth(), getHeight());
+            super.paintComponent(g);
+          }
+        };
+        item.setOpaque(false);          // let our paintComponent do the work
+        item.setForeground(Color.WHITE);
+        item.setFont(item.getFont().deriveFont(11f));
+        item.setBorderPainted(false);
+        item.setFocusPainted(false);
+
+        final int stringIdx = i;
+        final int selectedNote = noteIdx;
+        item.addActionListener(e -> {
+          int chromaticIndex = NoteCalculator.DROPDOWN_TO_CHROMATIC[selectedNote];
+          noteCalc.setTuning(stringIdx, chromaticIndex);
+          btn.setText(noteCalc.getNoteName(stringIdx, 0));
+          repaint();
+        });
+        popup.add(item);
+      }
+
+      btn.addActionListener(e -> popup.show(btn, 0, btn.getHeight()));
+
+      add(btn);
+      tuningButtons[i] = btn;
+    }
+    revalidate();
+    repaint();
+  }
+
+  private void updateTuningButtonTexts() {
+    if (tuningButtons != null) {
+      for (int i = 0; i < tuningButtons.length && i < numStrings; i++) {
+        tuningButtons[i].setText(noteCalc.getNoteName(i, 0));
+      }
+    }
+  }
+
+  public void toggleNoteSystem() {
+    noteCalc.toggleSharpFlat();
+    updateTuningButtonTexts();   // updates the button labels
+    repaint();
   }
 
   void onHit(Rectangle r) {
@@ -210,11 +309,6 @@ public class FretboardPanel extends JPanel implements MouseListener {
   public void mouseEntered(MouseEvent e) {}
   public void mouseExited(MouseEvent e) {}
   public void mouseClicked(MouseEvent e) {}
-
-  // Public methods for external control
-  public void toggleNoteSystem() {
-    noteCalc.toggleSharpFlat();
-  }
 
   public boolean isUsingSharps() {
     return noteCalc.isUsingSharps();

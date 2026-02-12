@@ -1,32 +1,41 @@
 public class NoteCalculator {
-    // Chromatic note arrays
     private String[] sharpNotes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-    private String[] flatNotes = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
+    private String[] flatNotes  = {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
 
-    // 10-string tuning (highest to lowest):
-    // String1:E, 2:B, 3:G, 4:D, 5:A, 6:E, 7:B, 8:F#, 9:C#, 10:G#
-    private int[] tuning = {4, 11, 7, 2, 9, 4, 11, 6, 1, 8};
+    // Exact names for dropdown menus (sharp/flat combined)
+    public static final String[] DROPDOWN_NOTES = {
+            "A", "A#/Bb", "B", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab"
+    };
 
-    // Current note system
+    public static final int[] DROPDOWN_TO_CHROMATIC = {
+            9,  // A
+            10, // A#/Bb
+            11, // B
+            0,  // C
+            1,  // C#/Db
+            2,  // D
+            3,  // D#/Eb
+            4,  // E
+            5,  // F
+            6,  // F#/Gb
+            7,  // G
+            8   // G#/Ab
+    };
+
+    private int[] tuning = {4, 11, 7, 2, 9, 4, 11, 6, 1, 8}; // E,B,G,D,A,E,B,F#,C#,G#
     private boolean useSharps = true;
 
-    // Get note name - stringIndex: 0=string1(highest), 1=string2, etc.
     public String getNoteName(int stringIndex, int fret) {
         if (stringIndex < 0 || stringIndex >= tuning.length) return "";
-
-        int openNoteIndex = tuning[stringIndex];
-        int noteIndex = (openNoteIndex + fret) % 12;
-
+        int noteIndex = (tuning[stringIndex] + fret) % 12;
         return useSharps ? sharpNotes[noteIndex] : flatNotes[noteIndex];
     }
 
-    // Toggle between sharps and flats
-    public void toggleSharpFlat() {
-        useSharps = !useSharps;
+    public void setTuning(int stringIndex, int noteIndex) {
+        if (stringIndex >= 0 && stringIndex < tuning.length)
+            tuning[stringIndex] = noteIndex;
     }
 
-    // Get current state
-    public boolean isUsingSharps() {
-        return useSharps;
-    }
+    public void toggleSharpFlat() { useSharps = !useSharps; }
+    public boolean isUsingSharps() { return useSharps; }
 }

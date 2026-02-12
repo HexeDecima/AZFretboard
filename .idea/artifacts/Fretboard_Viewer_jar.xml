@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Fretboard Viewer:jar">
+    <output-path>$PROJECT_DIR$/production/Fretboard Viewer/artifacts/Fretboard_Viewer_jar</output-path>
+    <root id="archive" name="Fretboard Viewer.jar">
+      <element id="module-output" name="Fretboard Viewer" />
+    </root>
+  </artifact>
+</component>

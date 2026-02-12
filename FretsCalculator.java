@@ -20,10 +20,10 @@ public class FretsCalculator {
     }
 
     private void calculateAllPositions() {
-        // Set initial nut positions (fixed)
-        positions[0] = 0;   // Nut left edge
-        positions[1] = 31;  // Nut center / redRect0 center
-        positions[2] = 63;  // Nut right edge
+        // New – shift right by 20 pixels:
+        positions[0] = 20;   // Nut left edge
+        positions[1] = 51;   // Nut center
+        positions[2] = 83;   // Nut right edge
 
         // Target position for the last fret (fret24 center)
         int targetLastPos = 1180;
@@ -67,9 +67,9 @@ public class FretsCalculator {
             int posIndex = 2 * i + 1;
 
             if (i == 0) {
-                // Red rect 0: between position 0 and 2
+                // Red rect 0 (nut) – make narrower to leave space for tuning dropdown
                 int distance = positions[2] - positions[0];
-                redRectWidths[i] = (int)(distance * 0.8);
+                redRectWidths[i] = (int)(distance * 0.6);   // was 0.8
             } else {
                 // Other red rects: between position before and after
                 int beforePos = positions[posIndex - 1];
@@ -85,6 +85,8 @@ public class FretsCalculator {
             redRectLeftEdges[i] = redRectCenters[i] - redRectWidths[i] / 2;
         }
     }
+
+
 
     public int[] getRedRectLeftEdges() {
         return redRectLeftEdges;
