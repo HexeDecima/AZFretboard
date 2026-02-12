@@ -462,81 +462,51 @@ public class FretboardViewer extends JFrame implements ActionListener {
 
   // Read the CSV file and fill the presets list
   private void loadPresetsFromCSV() {
-    System.out.println("Working directory: " + new java.io.File(".").getAbsolutePath());
+    System.out.println("Loading presets from JAR resource...");
 
     try (java.io.BufferedReader br = new java.io.BufferedReader(
-            new java.io.FileReader("AZFretboardTuningPresets.csv"))) {
+            new java.io.InputStreamReader(
+                    getClass().getResourceAsStream("/AZFretboardTuningPresets.csv")))) {
 
-      // Read and print header
-      String header = br.readLine();
-      System.out.println("Header: " + header);
+      // --- SKIP TWO HEADER LINES ---
+      String tableLine = br.readLine(); // "Table 1"
+      String headerLine = br.readLine(); // column names
+      System.out.println("Skipped: " + tableLine);
+      System.out.println("Skipped: " + headerLine);
 
       String line;
-      int lineNumber = 1;
       while ((line = br.readLine()) != null) {
-        lineNumber++;
         line = line.trim();
         if (line.isEmpty()) continue;
 
-        System.out.println("\n--- Line " + lineNumber + " ---");
-        System.out.println("Raw: " + line);
-
         String[] parts = line.split(";");
-        System.out.println("Split parts: " + java.util.Arrays.toString(parts));
-        System.out.println("parts.length = " + parts.length);
-
-        if (parts.length < 4) {
-          System.out.println("  ⚠ Skipping: less than 4 parts");
-          continue;
-        }
+        if (parts.length < 4) continue;
 
         String name = parts[0].trim();
-        String numStringsStr = parts[1].trim();
+        int numStrings = Integer.parseInt(parts[1].trim());
         String tuningStr = parts[2].trim();
         String dotsStr = parts[3].trim();
 
-        System.out.println("  name: " + name);
-        System.out.println("  numStrings: " + numStringsStr);
-        System.out.println("  tuningStr: " + tuningStr);
-        System.out.println("  dotsStr: " + dotsStr);
-
-        try {
-          int numStrings = Integer.parseInt(numStringsStr);
-
-          // Convert tuning string to chromatic indices
-          int[] tunings = new int[tuningStr.length()];
-          for (int i = 0; i < tuningStr.length(); i++) {
-            tunings[i] = noteLetterToIndex(tuningStr.charAt(i));
-          }
-          System.out.println("  tunings array: " + java.util.Arrays.toString(tunings));
-
-          // Convert dots text to mode (0,1,2)
-          int dotsMode;
-          if (dotsStr.equals("Guitar/Bass")) {
-            dotsMode = 0;
-          } else if (dotsStr.equals("Mandolin/Banjo/Ukulele")) {
-            dotsMode = 1;
-          } else {
-            dotsMode = 2;
-          }
-          System.out.println("  dotsMode: " + dotsMode);
-
-          // Add preset to list
-          presets.add(new Preset(name, numStrings, tunings, dotsMode));
-          System.out.println("  ✅ Added preset: " + name);
-
-        } catch (NumberFormatException e) {
-          System.out.println("  ❌ NumberFormatException: " + e.getMessage());
-        } catch (Exception e) {
-          System.out.println("  ❌ Exception: " + e.getMessage());
+        // Convert tuning string to chromatic indices
+        int[] tunings = new int[tuningStr.length()];
+        for (int i = 0; i < tuningStr.length(); i++) {
+          tunings[i] = noteLetterToIndex(tuningStr.charAt(i));
         }
+
+        // Convert dots text to mode (0,1,2)
+        int dotsMode;
+        if (dotsStr.equals("Guitar/Bass")) dotsMode = 0;
+        else if (dotsStr.equals("Mandolin/Banjo/Ukulele")) dotsMode = 1;
+        else dotsMode = 2;
+
+        presets.add(new Preset(name, numStrings, tunings, dotsMode));
       }
 
-      System.out.println("\n=== Total presets loaded: " + presets.size() + " ===");
+      System.out.println("Loaded " + presets.size() + " presets.");
 
     } catch (Exception e) {
-      System.out.println("CAUGHT EXCEPTION: " + e.getMessage());
-      System.err.println("Could not load presets file: " + e.getMessage());
+      System.err.println("Could not load presets: " + e.getMessage());
+      e.printStackTrace();
     }
   }
   // ------------------------------------------------------------------------
