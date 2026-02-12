@@ -32,6 +32,7 @@ public class BackgroundGenerator {
 //    private static final int[] FRET_WIDTH = {50, 42, 36, 35, 32, 31, 29, 27, 27, 25,
 //            23, 23, 22, 22, 21, 21, 21, 20, 21, 21,
 //            20, 20, 20, 20, 20};
+    private int dotsMode;
     private int[] fretXArray;
     private int[] fretWidthArray;
 //    private static final int[] STRING_Y_6 = {12, 52, 90, 129, 169, 208};
@@ -40,8 +41,9 @@ public class BackgroundGenerator {
     private static final int FRET_THICKNESS = 6;
     private FretsCalculator fretsCalculator;
 
-    public BackgroundGenerator(FretsCalculator calculator) {
+    public BackgroundGenerator(FretsCalculator calculator, int dotsMode) {
         this.fretsCalculator = calculator;
+        this.dotsMode = dotsMode;
     }
 
     public BufferedImage generateFretboard(int numStrings, int numFrets, int width, int height) {
@@ -260,16 +262,23 @@ public class BackgroundGenerator {
     }
 
     private void drawFretMarkers(Graphics2D g2d, int numFrets, int numStrings, int[] stringY) {
-        int[] markerFrets = {3, 5, 7, 9, 12, 15, 17, 19, 21, 24};
         int dotDiameter = 25;
+
+        // Determine which frets get dots based on current mode
+        int[] markerFrets;
+        if (dotsMode == 0) { // 0 = Guitar/Bass
+            markerFrets = new int[]{3, 5, 7, 9, 12, 15, 17, 19, 21, 24};
+        } else if (dotsMode == 1) { // 1 = Mandolin/Banjo/Ukulele
+            markerFrets = new int[]{3, 5, 7, 10, 12, 15, 17, 19, 22, 24};
+        } else { // 2 = Off
+            markerFrets = new int[0];
+        }
 
         System.out.println("=== Dot Position Calculations ===");
 
         for (int fret : markerFrets) {
             if (fret <= numFrets) {
-                // Get the ADJUSTED red rectangle center (now perfectly centered)
                 int redRectCenter = fretsCalculator.getRedRectCenter(fret);
-
                 System.out.println("Fret " + fret + ": Center=" + redRectCenter);
 
                 if (fret == 12 || fret == 24) {
@@ -278,7 +287,6 @@ public class BackgroundGenerator {
                     drawPearlDot(g2d, redRectCenter, topY, dotDiameter);
                     drawPearlDot(g2d, redRectCenter, bottomY, dotDiameter);
                 } else {
-                    // Always vertical center of fretboard
                     int middleY = (stringY[0] + stringY[numStrings - 1]) / 2;
                     drawPearlDot(g2d, redRectCenter, middleY, dotDiameter);
                 }

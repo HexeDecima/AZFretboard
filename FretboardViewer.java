@@ -72,6 +72,34 @@ public class FretboardViewer extends JFrame implements ActionListener {
       setLocationRelativeTo(null);
     });
     controlPanel.add(stringCombo);
+    // --- Dots placement dropdown ---
+    JLabel dotsLabel = new JLabel("Dots:");
+    dotsLabel.setForeground(Color.WHITE);
+    controlPanel.add(dotsLabel);
+
+    String[] dotsOptions = {"Guitar/Bass", "Mandolin/Banjo/Ukulele", "Off"};
+    JComboBox<String> dotsCombo = new JComboBox<>(dotsOptions);
+    dotsCombo.setForeground(Color.WHITE);
+    dotsCombo.setBackground(new Color(50, 50, 58));
+    dotsCombo.setSelectedIndex(0);   // Guitar/Bass
+
+// Force dark renderer (matches your Strings dropdown)
+    dotsCombo.setRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                    int index, boolean isSelected, boolean cellHasFocus) {
+        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        c.setForeground(Color.WHITE);
+        c.setBackground(isSelected ? new Color(60, 60, 70) : new Color(45, 45, 52));
+        return c;
+      }
+    });
+
+    dotsCombo.addActionListener(e -> {
+      int selected = dotsCombo.getSelectedIndex();
+      fretboardPanel.setDotsMode(selected);   // 0 = Guitar, 1 = Mandolin, 2 = Off
+    });
+    controlPanel.add(dotsCombo);
 
     add(controlPanel, BorderLayout.PAGE_START);
     add(fretboardPanel, BorderLayout.CENTER);

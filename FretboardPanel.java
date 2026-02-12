@@ -15,6 +15,10 @@ public class FretboardPanel extends JPanel implements MouseListener {
   private JButton[] tuningButtons;
   private static final int DROPDOWN_WIDTH = 24;      // narrow – fits before redRect0
   private static final int DROPDOWN_HEIGHT = 20;
+  public static final int DOTS_GUITAR = 0;
+  public static final int DOTS_MANDOLIN = 1;
+  public static final int DOTS_OFF = 2;
+  private int dotsMode = DOTS_GUITAR;   // default
 
   // Background generator
   private BackgroundGenerator backgroundGenerator;
@@ -52,10 +56,11 @@ public class FretboardPanel extends JPanel implements MouseListener {
 
     // Initialize calculator
     fretsCalculator = new FretsCalculator();
+    dotsMode = DOTS_GUITAR;   // ensure default is set
     fretsCalculator.printAllPositions(); // This will show the 51 positions
 
     // Initialize background generator
-    backgroundGenerator = new BackgroundGenerator(fretsCalculator);
+    backgroundGenerator = new BackgroundGenerator(fretsCalculator, dotsMode);
     regenerateBackground();
 
     // Calculate initial panel height
@@ -87,17 +92,13 @@ public class FretboardPanel extends JPanel implements MouseListener {
   }
 
   private void regenerateBackground() {
-    backgroundGenerator = new BackgroundGenerator(fretsCalculator);
+    backgroundGenerator = new BackgroundGenerator(fretsCalculator, dotsMode);
     int height = backgroundGenerator.calculateFretboardHeight(numStrings);
     this.panelHeight = height;
-    // DEBUG: print values
-    System.out.println("numStrings: " + numStrings);
-    System.out.println("panelHeight: " + panelHeight);
-    int lastStringY = stringY[numStrings - 1];
-    int bottomY = lastStringY + 20; // rectangle bottom
-    System.out.println("lastStringY: " + lastStringY + ", bottomY: " + bottomY + ", margin: " + (panelHeight - bottomY));
-
     background = backgroundGenerator.generateFretboard(numStrings, NUM_FRETS, PANEL_WIDTH, height);
+    setPreferredSize(new Dimension(PANEL_WIDTH, panelHeight));
+    setMinimumSize(new Dimension(PANEL_WIDTH, panelHeight));
+    setMaximumSize(new Dimension(PANEL_WIDTH, panelHeight));
     revalidate();
     repaint();
   }
@@ -129,6 +130,18 @@ public class FretboardPanel extends JPanel implements MouseListener {
     // Update panel size
     revalidate();
     repaint();
+  }
+
+  public void setDotsMode(int mode) {
+    if (mode >= DOTS_GUITAR && mode <= DOTS_OFF) {
+      this.dotsMode = mode;
+      regenerateBackground();   // redraw with new dot positions
+      repaint();
+    }
+  }
+
+  public int getDotsMode() {
+    return dotsMode;
   }
 
   private void initializeStringPositions() {
