@@ -112,5 +112,4 @@ jpackage --input . --dest . --name "fretboardviewer" \
 | `fakeroot not found` (Linux) | Install with `sudo apt install fakeroot` (Debian/Ubuntu). |
 
 ---
-
-**You’re ready to ship!** If you encounter any platform‑specific issues, check the official [jpackage documentation](https://docs.oracle.com/en/java/javase/14/jpackage/packaging-overview.html).
+If you encounter any platform‑specific issues, check the official [jpackage documentation](https://docs.oracle.com/en/java/javase/14/jpackage/packaging-overview.html).
